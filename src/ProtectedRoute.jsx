@@ -27,7 +27,7 @@ const ProtectedRoute = ({ element }) => {
   return (localStorage.getItem('userToken') || isAuthenticated) ? (
     element
   ) : (
-    <Navigate to="/authentication/sign-in" state={{ from: location }} replace />
+    <Navigate to="/sign-in" state={{ from: location }} replace />
   );
 };
 

@@ -20,8 +20,8 @@ export default defineConfig({
   //   },
   // },
   esbuild: {
-    loader: "jsx",
-    include: /src\/.*\.js$/, // Apply JSX parsing to all `.js` files in src/
+    loader: 'jsx', // Ensures JSX is enabled for .js files
+    include: /src\/.*\.js$/, // Apply only to specific files
   },
   plugins: [
     react({

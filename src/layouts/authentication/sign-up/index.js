@@ -78,7 +78,7 @@ function Cover() {
         position: "top-right",
         autoClose: 5000,
       });
-      navigate("/authentication/sign-in"); // Ensure `navigate` is available
+      navigate("/sign-in"); // Ensure `navigate` is available
     },
     onError: (error) => {
       toast.error(error?.response?.data?.errors?.[0], {

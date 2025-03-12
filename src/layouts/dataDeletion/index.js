@@ -98,6 +98,7 @@ const DataDeletion = () => {
               &copy; 2025 Marketincer. All rights reserved.
             </Typography>
             <Typography variant="body2">
+              <Link href="/" color="inherit">Home</Link> | 
               <Link href="terms" color="inherit">Terms of Service</Link> | 
               <Link href="privacy-policy" color="inherit"> Privacy Policy</Link> | 
               <Link href="data-deletion" color="inherit"> Data Deletion</Link>
