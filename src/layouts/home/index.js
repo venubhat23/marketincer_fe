@@ -372,7 +372,7 @@ const Home = () => {
             <div style={styles.hero}>
               <div>
                 <h1 style={styles.headingPrimary}>
-                  Connect. Collaborate. Create Impact.
+                  Connects. Collaborate. Create Impact.
                 </h1>
                 <p style={styles.heroDescription}>
                   Marketincer is the premier platform bridging brands, agencies, and influencers for seamless, authentic collaborations.
