@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './style.css';
@@ -8,7 +8,7 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MDButton from "@/components/MDButton";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
-
+import axios from "axios";
 import { Modal, Box, IconButton, Button, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -111,7 +111,45 @@ const EventCard = ({ event }) => {
 };
 
 const EventModal = ({ event, open, onClose }) => {
+
+      const [posting, setPosting] = useState(false);
+
     if (!event) return null;
+
+
+
+
+      const handlePublish = async (status= "publish") => {
+     
+        setPosting(true);
+        const payloadData = {
+          social_page_id: selectedPages[0],  // Only sending the first selected page for now
+          post: {
+            s3_url: event.s3_url,
+            hashtags: "#sports #fitness",  // Static hashtags
+            note: event.comments,
+            comments: event.comments, // Use the postContent for comments as well
+            brand_name: event.brand_name,
+            status: status
+          },
+        };
+    
+        try {
+          const token = localStorage.getItem("userToken");
+          await axios.post("https://marketincer-apis.onrender.com/api/v1/posts", payloadData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          });
+          alert("Post published successfully!");
+          // Optionally, clear form states
+        
+          setPosting(false);
+        } catch (error) {
+          console.error("Error publishing post:", error);
+          alert("Failed to publish post");
+        }
+      };
 
     return (
         <Modal
@@ -214,7 +252,24 @@ const EventModal = ({ event, open, onClose }) => {
                                 backgroundColor: "#00b3ad !important", // Slightly darker on hover
                                 },
                             }}
-                            
+                            onClick={()=>handlePublish("publish")}
+                            disabled={posting} 
+                            >
+                            Publish
+                            </MDButton>
+                            <MDButton
+                            variant="gradient"
+                            size="small"
+                            sx={{
+                                height: "10px",
+                                backgroundColor: "#01cbc6 !important", // Ensures background color applies
+                                color: "white !important", // ✅ Forces white text
+                                "&:hover": {
+                                backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                                },
+                            }}
+                            onClick={()=>handlePublish("shedule")}
+                            disabled={posting} 
                             >
                             Schedule
                             </MDButton>
@@ -304,19 +359,88 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
 
 
 
-const CalendarComponent = () => {
-    // Function to dynamically adjust day cell height
-    const dayPropGetter = (date) => {
-        return {
-            style: {
-                minHeight: 'auto', // Allow cells to expand
-                height: 'auto',
-            },
-        };
-    };
+const CalendarComponent = (props) => {
+
+    const [myEventsList, setMyEventsList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentView, setCurrentView] = useState('month');
 
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
+
+
+    const getDateRange = (date, view) => {
+        const momentDate = moment(date);
+        let from, to;
+    
+        switch(view) {
+          case 'month':
+            from = momentDate.clone().startOf('month').format('YYYY-MM-DD');
+            to = momentDate.clone().endOf('month').format('YYYY-MM-DD');
+            break;
+          case 'week':
+            from = momentDate.clone().startOf('isoWeek').format('YYYY-MM-DD');
+            to = momentDate.clone().endOf('isoWeek').format('YYYY-MM-DD');
+            break;
+          case 'day':
+            from = to = momentDate.format('YYYY-MM-DD');
+            break;
+          default:
+            from = to = momentDate.format('YYYY-MM-DD');
+        }
+    
+        return { from, to };
+      };
+    
+      const fetchEvents = async () => {
+        console.log(props);
+        try {
+          setLoading(true);
+          const { from, to } = getDateRange(currentDate, currentView);
+          
+          const response = await axios.get(
+            'https://marketincer-apis.onrender.com/api/v1/posts/search', 
+            {
+              params: {
+                postType: 'poll',
+                query: 'sa',
+                from,
+                to,
+                account_ids: props.selectedPages
+              }
+            }
+          );
+    
+          const events = response.data.map(event => ({
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end)
+          }));
+    
+          setMyEventsList(events);
+          setError(null);
+        } catch (err) {
+          setError('Failed to fetch events');
+          console.error('API Error:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      useEffect(() => {
+        fetchEvents();
+      }, [currentView, currentDate, props.selectedPages]);
+    
+      const handleViewChange = (newView) => {
+        setCurrentView(newView);
+      };
+    
+      const handleNavigate = (newDate) => {
+        setCurrentDate(newDate);
+      };
+    
 
     const handleEventClick = (event) => {
         setSelectedEvent(event);
@@ -325,12 +449,16 @@ const CalendarComponent = () => {
 
 
     return (
-        <div style={{ height: 'auto', minHeight: 600 }}>
+        <div style={{ height: 'auto', minHeight: 600, width: "80%" }}>
             <Calendar
                 localizer={localizer}
                 events={myEventsList}
                 defaultView="month"
                 culture="en-GB"
+                onView={handleViewChange}
+                onNavigate={handleNavigate}
+                date={currentDate}
+                view={currentView}
                 components={{
                     month: {
                         dateHeader: CustomDateCell,
