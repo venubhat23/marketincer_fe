@@ -21,12 +21,12 @@ import MDInput from "@/components/MDInput";
 
 const FACEBOOK_APP_ID = "499798672825129";
 const FACEBOOK_APP_SECRET = "0972b471f1d251f8db7762be1db4613c";
-const REDIRECT_URI = "http://localhost:5173/social";
+// const REDIRECT_URI = "http://localhost:5173/social";
 // const FACEBOOK_APP_ID = "658464799854317";
 // const FACEBOOK_APP_SECRET = "b9d95073b6749e1aabc63d5bbad45529";
 // const REDIRECT_URI = "https://marketincerfe.kukus.in/social";
 
-// const REDIRECT_URI = "https://www.marketincer.com/social";
+const REDIRECT_URI = "https://www.marketincer.com/social";
 
 const Index = () => {
   const [openModal, setOpenModal] = useState(false);

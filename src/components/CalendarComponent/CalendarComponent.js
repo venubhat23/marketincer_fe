@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './style.css';
@@ -9,8 +9,10 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MDButton from "@/components/MDButton";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import axios from "axios";
-import { Modal, Box, IconButton, Button, Typography } from '@mui/material';
+import { Modal, Box, IconButton, Button, Typography,  InputLabel, FormControl, Select,
+    TextField,  MenuItem,} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import MyEditor from "../../components/Editor";
 import {
     Avatar,
 } from "@mui/material";
@@ -55,7 +57,7 @@ const myEventsList = [
             "updated_at": "2025-03-19T15:22:24.959Z"
         },
     },
-    
+
 ];
 // Move CustomMonthRow to top
 const CustomMonthRow = ({ dates, ...props }) => {
@@ -104,49 +106,128 @@ const EventCard = ({ event }) => {
             <div className="event-image-container">
                 <img src={event.s3_url} alt={event.page_data?.name} className="event-image" />
             </div>
-            <div className="event-description">  <span dangerouslySetInnerHTML={{ __html: event.comments }}/> </div>
+            <div className="event-description">  <span dangerouslySetInnerHTML={{ __html: event.comments }} /> </div>
             <button className="edit-button">✏️</button>
         </div>
     );
 };
 
 const EventModal = ({ event, open, onClose }) => {
-
-      const [posting, setPosting] = useState(false);
-
+ const [postContent, setPostContent] = useState(event?.comments || "");
+    const [posting, setPosting] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+     const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+      const [file, setFile] = useState(null);
+      const [uploading, setUploading] = useState(false);
+      const [loading, setLoading] = useState(false);
+      const [selectedPages, setSelectedPages] = useState([]);
+      const [brandName, setBrandName] = useState("");
+      const fileInputRef = useRef(null);
+      const [uploadedFileName, setUploadedFileName] = useState("");
+   useEffect(() => {
+        setPostContent(event?.comments);
+        setUploadedImageUrl(event?.s3_url);
+        setUploadedFileName(event?.s3_url?.split('/').pop() || '');
+        setBrandName(event?.brand_name);
+    }, [event]);
     if (!event) return null;
+ 
+    const handlePublish = async (status = "publish") => {
 
-      const handlePublish = async (status= "publish") => {
-     
         setPosting(true);
         const payloadData = {
-          social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
-          post: {
-            s3_url: event.s3_url,
-            hashtags: "#sports #fitness",  // Static hashtags
-            note: event.comments,
-            comments: event.comments, // Use the postContent for comments as well
-            brand_name: event.brand_name,
-            status: status
-          },
+            social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
+            post: {
+                s3_url: event.s3_url,
+                hashtags: "#sports #fitness",  // Static hashtags
+                note: event.comments,
+                comments: event.comments, // Use the postContent for comments as well
+                brand_name: event.brand_name,
+                status: status
+            },
         };
-    
+
         try {
-          const token = localStorage.getItem("userToken");
-          await axios.post("https://marketincer-apis.onrender.com/api/v1/posts", payloadData, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          });
-          alert("Post published successfully!");
-          // Optionally, clear form states
-        
-          setPosting(false);
+            const token = localStorage.getItem("userToken");
+            await axios.post("https://marketincer-apis.onrender.com/api/v1/posts", payloadData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            alert("Post published successfully!");
+            // Optionally, clear form states
+
+            setPosting(false);
         } catch (error) {
-          console.error("Error publishing post:", error);
-          alert("Failed to publish post");
+            console.error("Error publishing post:", error);
+            alert("Failed to publish post");
         }
-      };
+    };
+
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setUploadedFileName(selectedFile.name);
+
+      // ✅ Auto-upload the file after selection
+      handleFileUpload(selectedFile);
+    }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const droppedFile = event.dataTransfer.files[0];
+    if (droppedFile) {
+      setFile(droppedFile);
+      setUploadedFileName(droppedFile.name);
+
+      // ✅ Auto-upload the file after drop
+      handleFileUpload(droppedFile);
+    }
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(
+        "https://kitintellect.tech/storage/public/api/upload/aaFacebook",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.url) {
+        setUploadedImageUrl(data.url); // ✅ Store uploaded file URL
+        toast.success("File uploaded successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (error) {
+      toast.error("File upload failed!", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      console.error("Error uploading file:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+  const handleBoxClick = () => {
+    fileInputRef.current.click(); // ✅ Triggers the hidden file input
+  };
 
     return (
         <Modal
@@ -180,7 +261,6 @@ const EventModal = ({ event, open, onClose }) => {
                 </IconButton>
 
                 <div>
-
                     <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", marginRight: "40px", }}>
                         <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
                             <Avatar sx={{ marginRight: "10px" }} src={event.page_data?.page_info?.picture?.data?.url}></Avatar>
@@ -197,19 +277,139 @@ const EventModal = ({ event, open, onClose }) => {
                             gap: '8px',
                             marginBottom: '24px'
                         }}>
-                            <span className="model-time" style={{colr: "#cdcdcd"}}>
-                                <CalendarMonthIcon style={{ marginRight: "3px"}} />{moment(event.start).format('ddd, D MMM [at] HH:mm')}
+                            <span className="model-time" style={{ colr: "#cdcdcd" }}>
+                                <CalendarMonthIcon style={{ marginRight: "3px" }} />{moment(event.start).format('ddd, D MMM [at] HH:mm')}
                             </span>
                         </div>
                     </Box>
+                    { isEdit ? (<>
+                        <Box sx={{ width: "100%" }}>
+            <Box sx={{ width: "100%", position: "relative", marginBottom: "10px" }}>
+              <MyEditor value={postContent} onChange={setPostContent} />
 
-                    <p style={{
+              <Box
+                display="flex"
+                sx={{
+                  marginBottom: "0px",
+                  position: "absolute",
+                  bottom: "-9px",
+                  gap: "0px"
+                }}
+              >
+                <MDButton
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    margin: "0.09375rem 1rem",
+                    mb: 2,
+                    borderRadius: "50px", // ✅ Fully rounded border
+                    borderColor: "#B0B0B0", // ✅ Gray border
+                    color: "#757575", // ✅ Gray text
+                    backgroundColor: "#F0F0F0", // ✅ Light gray background
+                    "&:hover": {
+                      backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
+                    },
+                  }}
+                  onClick={() => { }}
+                  to="/social"
+                >
+                  # Hashtag
+                </MDButton>
+                <MDButton
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    margin: "0.09375rem 0rem",
+                    mb: 2,
+                    borderRadius: "50px", // ✅ Fully rounded border
+                    borderColor: "#B0B0B0", // ✅ Gray border
+                    color: "#757575", // ✅ Gray text
+                    backgroundColor: "#F0F0F0", // ✅ Light gray background
+                    "&:hover": {
+                      backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
+                    },
+                  }}
+                  onClick={() => { }}
+                  to="/social"
+                >
+                  * AI Assist
+                </MDButton>
+
+              </Box>
+            </Box>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Brand</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Brand"
+                sx={{
+                  width: "-webkit-fill-available",
+                  height: "50px",
+                  margin: "0px",
+                  marginTop: "10px"
+                }}
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+              >
+                <MenuItem value={"d-mart"}>D-Mart</MenuItem>
+                <MenuItem value={"v-mart"}>V-Mart</MenuItem>
+                <MenuItem value={"blinkit"}>Blinkit</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* File Upload Section */}
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{
+                width: "100%",
+                padding: "16px",
+                border: "1px dashed #ccc",
+                borderRadius: "8px",
+                backgroundColor: "#f9f9f9",
+                textAlign: "center",
+                cursor: "pointer",
+                my: 2,
+                margin: "10px",
+                marginLeft: "0px",
+              }}
+              onClick={handleBoxClick}
+              onDrop={handleDrop} // ✅ Handles dropped files
+              onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
+            >
+              <Typography variant="body1" sx={{ color: "#666" }}>
+                Click or Drag & Drop media
+              </Typography>
+
+              {uploadedFileName && (
+                <Typography variant="body2" sx={{ color: "#444", mt: 1 }}>
+                  Selected File: {uploadedFileName}
+                </Typography>
+              )}
+
+              {uploading && <Typography variant="body2">Uploading...</Typography>}
+            </Box>
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+
+          </Box>
+                    </>): (<>
+                        <p style={{
                         fontSize: '14px',
                         color: '#444',
                         marginBottom: '10px',
                         lineHeight: '1.5'
                     }}>
-                       <span dangerouslySetInnerHTML={{ __html: event.comments }}/> 
+                        <span dangerouslySetInnerHTML={{ __html: event.comments }} />
                     </p>
                     <div className="model-event-image-container">
                         <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
@@ -224,20 +424,22 @@ const EventModal = ({ event, open, onClose }) => {
                         paddingTop: '16px'
                     }}>
                         <Button
-                             variant="link"
-                             sx={{ height: "10px", color: "red", marginTop: "12px" }}
+                            variant="link"
+                            sx={{ height: "10px", color: "red", marginTop: "12px" }}
                         >
                             Delete
                         </Button>
-                       
+
                         <MDButton
                             variant="outlined"
                             color="info"
-                                size="small"
+                            size="small"
                             sx={{ height: "10px", }}
-                            >
+                            onClick={() => setIsEdit(true)}
+
+                        >
                             Edit
-                            </MDButton>
+                        </MDButton>
                         <MDButton
                             variant="gradient"
                             size="small"
@@ -246,15 +448,15 @@ const EventModal = ({ event, open, onClose }) => {
                                 backgroundColor: "#01cbc6 !important", // Ensures background color applies
                                 color: "white !important", // ✅ Forces white text
                                 "&:hover": {
-                                backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                                    backgroundColor: "#00b3ad !important", // Slightly darker on hover
                                 },
                             }}
-                            onClick={()=>handlePublish("publish")}
-                            disabled={posting} 
-                            >
+                            onClick={() => handlePublish("publish")}
+                            disabled={posting}
+                        >
                             Publish
-                            </MDButton>
-                            <MDButton
+                        </MDButton>
+                        <MDButton
                             variant="gradient"
                             size="small"
                             sx={{
@@ -262,16 +464,18 @@ const EventModal = ({ event, open, onClose }) => {
                                 backgroundColor: "#01cbc6 !important", // Ensures background color applies
                                 color: "white !important", // ✅ Forces white text
                                 "&:hover": {
-                                backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                                    backgroundColor: "#00b3ad !important", // Slightly darker on hover
                                 },
                             }}
-                            onClick={()=>handlePublish("shedule")}
-                            disabled={posting} 
-                            >
+                            onClick={() => handlePublish("shedule")}
+                            disabled={posting}
+                        >
                             Schedule
-                            </MDButton>
-                            
+                        </MDButton>
+
                     </div>
+                    </>)}
+                    
                 </div>
             </Box>
         </Modal>
@@ -371,75 +575,75 @@ const CalendarComponent = (props) => {
     const getDateRange = (date, view) => {
         const momentDate = moment(date);
         let from, to;
-    
-        switch(view) {
-          case 'month':
-            from = momentDate.clone().startOf('month').format('YYYY-MM-DD');
-            to = momentDate.clone().endOf('month').format('YYYY-MM-DD');
-            break;
-          case 'week':
-            from = momentDate.clone().startOf('isoWeek').format('YYYY-MM-DD');
-            to = momentDate.clone().endOf('isoWeek').format('YYYY-MM-DD');
-            break;
-          case 'day':
-            from = to = momentDate.format('YYYY-MM-DD');
-            break;
-          default:
-            from = to = momentDate.format('YYYY-MM-DD');
-        }
-    
-        return { from, to };
-      };
-    
-      const fetchEvents = async () => {
-     
-        try {
-          setLoading(true);
-          const { from, to } = getDateRange(currentDate, currentView);
-          
-          const response = await axios.get(
-            'https://marketincer-apis.onrender.com/api/v1/posts/search', 
-            {
-              params: {
-                from,
-                to,
-                account_ids: props.selectedPages
-              },
-              headers: {
-                Authorization: `Bearer ${token}`, // Attach the Bearer token
-              },
-            }
 
-          );
-    
-          const events = response.data.posts.map(event => ({
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.end)
-          }));
-    
-          setMyEventsList(events);
-          setError(null);
-        } catch (err) {
-          setError('Failed to fetch events');
-          console.error('API Error:', err);
-        } finally {
-          setLoading(false);
+        switch (view) {
+            case 'month':
+                from = momentDate.clone().startOf('month').format('YYYY-MM-DD');
+                to = momentDate.clone().endOf('month').format('YYYY-MM-DD');
+                break;
+            case 'week':
+                from = momentDate.clone().startOf('isoWeek').format('YYYY-MM-DD');
+                to = momentDate.clone().endOf('isoWeek').format('YYYY-MM-DD');
+                break;
+            case 'day':
+                from = to = momentDate.format('YYYY-MM-DD');
+                break;
+            default:
+                from = to = momentDate.format('YYYY-MM-DD');
         }
-      };
-    
-      useEffect(() => {
+
+        return { from, to };
+    };
+
+    const fetchEvents = async () => {
+
+        try {
+            setLoading(true);
+            const { from, to } = getDateRange(currentDate, currentView);
+
+            const response = await axios.get(
+                'https://marketincer-apis.onrender.com/api/v1/posts/search',
+                {
+                    params: {
+                        from,
+                        to,
+                        account_ids: props.selectedPages
+                    },
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Attach the Bearer token
+                    },
+                }
+
+            );
+
+            const events = response.data.posts.map(event => ({
+                ...event,
+                start: new Date(event.start),
+                end: new Date(event.end)
+            }));
+
+            setMyEventsList(events);
+            setError(null);
+        } catch (err) {
+            setError('Failed to fetch events');
+            console.error('API Error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchEvents();
-      }, [currentView, currentDate, props.selectedPages]);
-    
-      const handleViewChange = (newView) => {
+    }, [currentView, currentDate, props.selectedPages]);
+
+    const handleViewChange = (newView) => {
         setCurrentView(newView);
-      };
-    
-      const handleNavigate = (newDate) => {
+    };
+
+    const handleNavigate = (newDate) => {
         setCurrentDate(newDate);
-      };
-    
+    };
+
 
     const handleEventClick = (event) => {
         setSelectedEvent(event);
