@@ -96,13 +96,13 @@ const EventCard = ({ event }) => {
                     }}
                 >
                     <InstagramIcon sx={{ color: "#E1306C", width: 25, height: 25, }} />
-                    {event.page_data.name}
+                    {event.page_data?.name}
                 </Box>
 
             </div>
             <div className="event-time">🕒 {moment(event.start).format('HH:mm')}</div>
             <div className="event-image-container">
-                <img src={event.s3_url} alt={event.page_data.name} className="event-image" />
+                <img src={event.s3_url} alt={event.page_data?.name} className="event-image" />
             </div>
             <div className="event-description">  <span dangerouslySetInnerHTML={{ __html: event.comments }}/> </div>
             <button className="edit-button">✏️</button>
@@ -116,14 +116,11 @@ const EventModal = ({ event, open, onClose }) => {
 
     if (!event) return null;
 
-
-
-
       const handlePublish = async (status= "publish") => {
      
         setPosting(true);
         const payloadData = {
-          social_page_id: selectedPages[0],  // Only sending the first selected page for now
+          social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
           post: {
             s3_url: event.s3_url,
             hashtags: "#sports #fitness",  // Static hashtags
@@ -186,11 +183,11 @@ const EventModal = ({ event, open, onClose }) => {
 
                     <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", marginRight: "40px", }}>
                         <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-                            <Avatar sx={{ marginRight: "10px" }} src={event.page_data.page_info.picture.data.url}></Avatar>
+                            <Avatar sx={{ marginRight: "10px" }} src={event.page_data?.page_info?.picture?.data?.url}></Avatar>
                             <Box>
-                                <Typography variant="body1" sx={{ fontSize: "14px", fontWeight: "700" }}>{event.page_data.name}</Typography>
+                                <Typography variant="body1" sx={{ fontSize: "14px", fontWeight: "700" }}>{event.page_data?.name}</Typography>
                                 <Typography variant="body2" color="textSecondary" sx={{ fontSize: "14px" }}>
-                                    {event.page_data.username}
+                                    {event.page_data?.username}
                                 </Typography>
                             </Box>
                         </Box>
@@ -215,7 +212,7 @@ const EventModal = ({ event, open, onClose }) => {
                        <span dangerouslySetInnerHTML={{ __html: event.comments }}/> 
                     </p>
                     <div className="model-event-image-container">
-                        <img src={event.s3_url} alt={event.page_data.name} className="model-event-image" />
+                        <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
                     </div>
 
 
@@ -369,7 +366,7 @@ const CalendarComponent = (props) => {
 
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-
+    const token = localStorage.getItem("userToken");
 
     const getDateRange = (date, view) => {
         const momentDate = moment(date);
@@ -395,7 +392,7 @@ const CalendarComponent = (props) => {
       };
     
       const fetchEvents = async () => {
-        console.log(props);
+     
         try {
           setLoading(true);
           const { from, to } = getDateRange(currentDate, currentView);
@@ -404,16 +401,18 @@ const CalendarComponent = (props) => {
             'https://marketincer-apis.onrender.com/api/v1/posts/search', 
             {
               params: {
-                postType: 'poll',
-                query: 'sa',
                 from,
                 to,
                 account_ids: props.selectedPages
-              }
+              },
+              headers: {
+                Authorization: `Bearer ${token}`, // Attach the Bearer token
+              },
             }
+
           );
     
-          const events = response.data.map(event => ({
+          const events = response.data.posts.map(event => ({
             ...event,
             start: new Date(event.start),
             end: new Date(event.end)
@@ -449,7 +448,7 @@ const CalendarComponent = (props) => {
 
 
     return (
-        <div style={{ height: 'auto', minHeight: 600, width: "80%" }}>
+        <div style={{ height: 'auto', minHeight: 600, width: "90%" }}>
             <Calendar
                 localizer={localizer}
                 events={myEventsList}
