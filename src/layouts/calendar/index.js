@@ -71,14 +71,14 @@ const index = () => {
       <Box>
         <DashboardLayout>
           <DashboardNavbar />
-          <MDBox pt={6} pb={3}>
+          <MDBox  pb={3}>
             <Box sx={{ display: "flex", marginBottom: "10px", }}>
               <Box
                 sx={{
                   width: "15%",
                   backgroundColor: "rgba(255, 255, 255)",
                   borderRadius: "12px",
-                  marginTop: "120px"
+                  marginTop: "91px"
                 }}
                 role="presentation"
                 className="customClassname"

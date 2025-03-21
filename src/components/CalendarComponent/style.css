@@ -364,7 +364,6 @@
     align-items: center;
     padding: 15px 20px;
     border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
   }
   
   .toolbar-left {
@@ -452,4 +451,8 @@
     border-radius: 20px;
     font-size: 12px;
     line-height: 15px;
+  }
+
+  .calender-serch input {
+    padding: 6px;
   }
