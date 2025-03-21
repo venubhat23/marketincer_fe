@@ -16,7 +16,6 @@ import MyEditor from "../../components/Editor";
 import {
     Avatar,
 } from "@mui/material";
-import MDInput from "@/components/MDInput";
 
 const localizer = momentLocalizer(moment);
 
@@ -541,24 +540,7 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                 </button>
             </div>
 
-            <Box className="toolbar-right"  sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
-                    }}>
-                        
-        <MDInput label="Search here" className="calender-serch" sx={{padding: "6px"}}/>
-                <div className="view-switcher">
-                    <select
-                        className="feed-dropdown"
-                        
-                    >
-                        <option value="feed">All Post</option>
-                        <option value="month">Scheduled</option>
-                        <option value="week">Draft</option>
-                        <option value="day">Published</option>
-                    </select>
-                </div>
+            <div className="toolbar-right">
                 <div className="view-switcher">
                     <select
                         className="feed-dropdown"
@@ -571,7 +553,7 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                         <option value="day">Daily View</option>
                     </select>
                 </div>
-            </Box>
+            </div>
         </div>
     );
 };
@@ -692,7 +674,6 @@ const CalendarComponent = (props) => {
                 onSelectEvent={handleEventClick}
                 style={{
                     margin: '20px',
-                    marginTop: '0px',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '15px',
