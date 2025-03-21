@@ -41,6 +41,9 @@ import shareImage from "@/assets/images/instagram-share-icon.svg";
 import likeImage from "@/assets/images/instagram-like-icon.svg";
 import saveImage from "@/assets/images/instagram-save-icon.svg";
 
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/material_green.css";
+
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -65,6 +68,8 @@ const CreatePost = () => {
   const fileInputRef = useRef(null);
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [posting, setPosting] = useState(false);
+  const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
+  const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   // Set up Quill editor
   const modules = {
     toolbar: [
@@ -194,8 +199,16 @@ const CreatePost = () => {
         : [...prevSelected, pageId] // Select if not selected
     );
   };
-
+  const draftModelOpen= async () => {
+    if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
+      alert("Please make sure all fields are filled out!");
+      return;
+    }
+    setOpenDateTimePicker(true);
+   
+  };
   const draftHandler = async () => {
+   
     if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
       alert("Please make sure all fields are filled out!");
       return;
@@ -209,13 +222,14 @@ const CreatePost = () => {
         note: postContent,
         comments: postContent, // Use the postContent for comments as well
         brand_name: brandName,
-        status: "draft"
+        status: "draft",
+        scheduled_at: selectedDateTime
       },
     };
 
     try {
       const token = localStorage.getItem("userToken");
-      await axios.post("https://marketincer-apis.onrender.com/api/v1/posts", payloadData, {
+      await axios.post("https://marketincer-apis.onrender.com/api/v1/posts/schedule", payloadData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -226,6 +240,7 @@ const CreatePost = () => {
       setPostContent("");
       setUploadedImageUrl("");
       setPosting(false);
+      setOpenDateTimePicker(false);
     } catch (error) {
       console.error("Error draft post:", error);
       alert("Failed to draft post");
@@ -436,8 +451,8 @@ const CreatePost = () => {
 
       {/* Modal for Adding Account */}
       <Modal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
+        open={openDateTimePicker}
+        onClose={() => setOpenDateTimePicker(false)}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
       >
@@ -452,21 +467,52 @@ const CreatePost = () => {
             boxShadow: 24,
             p: 4,
             borderRadius: "10px",
-          }}
+          }} 
         >
-          <h2 id="modal-title">Add New Account</h2>
-          <TextField fullWidth label="Account Name" variant="outlined" sx={{ mb: 2 }} />
-          <TextField fullWidth label="Email" variant="outlined" sx={{ mb: 2 }} />
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-            <MDButton variant="outlined" color="secondary" onClick={() => setOpenModal(false)}>
+          <h6 >Select a predefined timeslot</h6>
+          <Flatpickr
+           options={{
+            inline: true,
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+          }}
+            value={selectedDateTime}
+            onChange={([date]) => setSelectedDateTime(date)}
+          />
+       
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: "20px" }}>
+            <MDButton variant="outlined" 
+            sx={{
+              margin: "0.09375rem 1px",
+              mb: 2,
+              border: "1px solid #01cbc6",
+              backgroundColor: "transprant !important", // Ensures background color applies
+              color: "#01cbc6 !important", // ✅ Forces white text
+              "&:hover": {
+                border: "1px solid #00b3ad",
+                backgroundColor: "#transprant !important", // Slightly darker on hover
+              },
+            }}
+            onClick={() => setOpenModal(false)}>
               Cancel
             </MDButton>
-            <MDButton variant="contained" color="primary">
+            <MDButton variant="gradient"
+            onClick={draftHandler}
+              sx={{
+                margin: "0.09375rem 1px",
+                mb: 2,
+                backgroundColor: "#01cbc6 !important", // Ensures background color applies
+                color: "white !important", // ✅ Forces white text
+                "&:hover": {
+                  backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                },
+              }}>
               Save
             </MDButton>
           </Box>
         </Box>
       </Modal>
+      
     </>
   );
   const list = () => (
@@ -665,7 +711,7 @@ const CreatePost = () => {
               variant="outlined"
               color="info"
               sx={{ margin: "0.09375rem 1px", mb: 2 }}
-              onClick={draftHandler}
+              onClick={draftModelOpen}
             >
               Draft
             </MDButton>
