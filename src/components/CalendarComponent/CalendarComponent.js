@@ -13,6 +13,7 @@ import { Modal, Box, IconButton, Button, Typography,  InputLabel, FormControl, S
     TextField,  MenuItem,} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MyEditor from "../../components/Editor";
+import MDInput from "@/components/MDInput";
 import {
     Avatar,
 } from "@mui/material";
@@ -540,7 +541,24 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                 </button>
             </div>
 
-            <div className="toolbar-right">
+            <Box className="toolbar-right"  sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                    }}>
+                        
+        <MDInput label="Search here" className="calender-serch" sx={{padding: "6px"}}/>
+                <div className="view-switcher">
+                    <select
+                        className="feed-dropdown"
+                        
+                    >
+                        <option value="feed">All Post</option>
+                        <option value="month">Scheduled</option>
+                        <option value="week">Draft</option>
+                        <option value="day">Published</option>
+                    </select>
+                </div>
                 <div className="view-switcher">
                     <select
                         className="feed-dropdown"
@@ -553,7 +571,7 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                         <option value="day">Daily View</option>
                     </select>
                 </div>
-            </div>
+            </Box>
         </div>
     );
 };
@@ -673,10 +691,11 @@ const CalendarComponent = (props) => {
                 }}
                 onSelectEvent={handleEventClick}
                 style={{
-                    margin: '20px',
+                    marginTop: '0px',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '15px',
+                    paddingTop: '15px',
                     fontFamily: 'Arial, sans-serif'
                 }}
             />
