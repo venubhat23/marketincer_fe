@@ -40,10 +40,7 @@ import commentImage from "@/assets/images/instagram-comment-icon.svg";
 import shareImage from "@/assets/images/instagram-share-icon.svg";
 import likeImage from "@/assets/images/instagram-like-icon.svg";
 import saveImage from "@/assets/images/instagram-save-icon.svg";
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import moment from 'moment';
+
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -68,9 +65,6 @@ const CreatePost = () => {
   const fileInputRef = useRef(null);
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [posting, setPosting] = useState(false);
-  const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
-  const [selectedDateTime, setSelectedDateTime] = useState(moment().startOf('day'));
-  
   // Set up Quill editor
   const modules = {
     toolbar: [
@@ -202,8 +196,6 @@ const CreatePost = () => {
   };
 
   const draftHandler = async () => {
-   setOpenDateTimePicker(true);
-    return;
     if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
       alert("Please make sure all fields are filled out!");
       return;
@@ -217,14 +209,13 @@ const CreatePost = () => {
         note: postContent,
         comments: postContent, // Use the postContent for comments as well
         brand_name: brandName,
-        status: "draft",
-        scheduled_at: new Date()
+        status: "draft"
       },
     };
 
     try {
       const token = localStorage.getItem("userToken");
-      await axios.post("https://marketincer-apis.onrender.com/api/v1/posts/schedule", payloadData, {
+      await axios.post("https://marketincer-apis.onrender.com/api/v1/posts", payloadData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -476,53 +467,6 @@ const CreatePost = () => {
           </Box>
         </Box>
       </Modal>
-
-         {/* Modal for select draft date  */}
-         <LocalizationProvider dateAdapter={AdapterMoment}>
-  <Modal
-    open={openDateTimePicker}
-    onClose={() => setOpenDateTimePicker(false)}
-  >
-    <Box sx={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: 400,
-      bgcolor: 'background.paper',
-      boxShadow: 24,
-      p: 3,
-      borderRadius: 2
-    }}>
-      <DateTimePicker
-        label="Select Date & Time"
-        value={selectedDateTime}
-        onChange={(newValue) => setSelectedDateTime(newValue)}
-        format="YYYY-MM-DD HH:mm"
-        sx={{ width: '100%', mb: 2 }}
-      />
-      
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-        <MDButton 
-          variant="outlined"
-          onClick={() => setOpenDateTimePicker(false)}
-        >
-          Cancel
-        </MDButton>
-        <MDButton
-          variant="contained"
-          onClick={() => {
-            // Handle schedule with selectedDateTime
-            console.log('Scheduled at:', selectedDateTime.format());
-            setOpenDateTimePicker(false);
-          }}
-        >
-          Confirm
-        </MDButton>
-      </div>
-    </Box>
-  </Modal>
-</LocalizationProvider>
     </>
   );
   const list = () => (
