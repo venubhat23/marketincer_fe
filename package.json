@@ -26,6 +26,7 @@
     "react-big-calendar": "^1.18.0",
     "react-chartjs-2": "5.2.0",
     "react-dom": "^18.3.1",
+    "react-flatpickr": "^3.10.13",
     "react-github-btn": "1.4.0",
     "react-hook-form": "^7.54.2",
     "react-quill": "^2.0.0",
