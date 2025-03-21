@@ -40,6 +40,9 @@ import commentImage from "@/assets/images/instagram-comment-icon.svg";
 import shareImage from "@/assets/images/instagram-share-icon.svg";
 import likeImage from "@/assets/images/instagram-like-icon.svg";
 import saveImage from "@/assets/images/instagram-save-icon.svg";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import moment from 'moment';
 
 const CreatePost = () => {
@@ -475,7 +478,7 @@ const CreatePost = () => {
       </Modal>
 
          {/* Modal for select draft date  */}
-        
+         <LocalizationProvider dateAdapter={AdapterMoment}>
   <Modal
     open={openDateTimePicker}
     onClose={() => setOpenDateTimePicker(false)}
@@ -491,7 +494,13 @@ const CreatePost = () => {
       p: 3,
       borderRadius: 2
     }}>
-      
+      <DateTimePicker
+        label="Select Date & Time"
+        value={selectedDateTime}
+        onChange={(newValue) => setSelectedDateTime(newValue)}
+        format="YYYY-MM-DD HH:mm"
+        sx={{ width: '100%', mb: 2 }}
+      />
       
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
         <MDButton 
@@ -513,7 +522,7 @@ const CreatePost = () => {
       </div>
     </Box>
   </Modal>
-
+</LocalizationProvider>
     </>
   );
   const list = () => (
