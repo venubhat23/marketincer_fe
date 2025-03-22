@@ -70,6 +70,7 @@ const CreatePost = () => {
   const [posting, setPosting] = useState(false);
   const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+  const [createPostMode, setCreatePostMode] = useState("");
   // Set up Quill editor
   const modules = {
     toolbar: [
@@ -199,11 +200,12 @@ const CreatePost = () => {
         : [...prevSelected, pageId] // Select if not selected
     );
   };
-  const draftModelOpen= async () => {
+  const draftModelOpen= async (action) => {
     if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
       alert("Please make sure all fields are filled out!");
       return;
     }
+    setCreatePostMode(action);
     setOpenDateTimePicker(true);
    
   };
@@ -222,7 +224,7 @@ const CreatePost = () => {
         note: postContent,
         comments: postContent, // Use the postContent for comments as well
         brand_name: brandName,
-        status: "draft",
+        status: createPostMode,
         scheduled_at: selectedDateTime
       },
     };
@@ -234,7 +236,7 @@ const CreatePost = () => {
           Authorization: `Bearer ${token}`,
         }
       });
-      alert("Post draft successfully!");
+      alert(`Post ${createPostMode} successfully!`);
       // Optionally, clear form states
       setSelectedPages([]);
       setPostContent("");
@@ -242,8 +244,8 @@ const CreatePost = () => {
       setPosting(false);
       setOpenDateTimePicker(false);
     } catch (error) {
-      console.error("Error draft post:", error);
-      alert("Failed to draft post");
+      console.error(`Error ${createPostMode}  post:`, error);
+      alert(`Failed to ${createPostMode} post`);
     }
   };
   const handlePublish = async () => {
@@ -659,12 +661,16 @@ const CreatePost = () => {
               onDrop={handleDrop} // ✅ Handles dropped files
               onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
             >
-              <Typography variant="body1" sx={{ color: "#666" }}>
+
+
+              <Typography variant="body1" sx={{ color: "#666",  }}>
                 Click or Drag & Drop media
               </Typography>
 
               {uploadedFileName && (
-                <Typography variant="body2" sx={{ color: "#444", mt: 1 }}>
+                <Typography variant="body2" sx={{ color: "#444", mt: 1, whiteSpace: "nowrap", // ✅ Ensures text does not wrap
+                  overflow: "hidden", // ✅ Hides overflow text
+                  textOverflow: "ellipsis",    maxWidth: "400px", }}>
                   Selected File: {uploadedFileName}
                 </Typography>
               )}
@@ -711,7 +717,7 @@ const CreatePost = () => {
               variant="outlined"
               color="info"
               sx={{ margin: "0.09375rem 1px", mb: 2 }}
-              onClick={draftModelOpen}
+              onClick={()=> draftModelOpen("draft")}
             >
               Draft
             </MDButton>
@@ -735,7 +741,7 @@ const CreatePost = () => {
                   backgroundColor: "#00b3ad !important", // Slightly darker on hover
                 },
               }}
-              onClick={handlePublish}
+              onClick={()=> draftModelOpen("schedule")}
             >
               Schedule
             </MDButton>

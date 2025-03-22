@@ -34,6 +34,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [pages, setPages] = useState([]);
   const [instagramAccounts, setInstagramAccounts] = useState([]);
+  const [gettingPage, setGettingPage] = useState(false);
 
 
   useEffect(() => {
@@ -89,7 +90,7 @@ const Index = () => {
 
   const fetchAccountsFromAPI = async (authCode) => {
 
-    setLoading(true);
+    setGettingPage(true);
     const token = localStorage.getItem("userToken");
     try {
       // Fetch the accounts from the dummy API
@@ -109,10 +110,11 @@ const Index = () => {
       const data = await response.json();
       setPages(data.data.accounts); // Store the fetched accounts in the state
       setOpenModal(true); // Open the modal once data is fetched
+     
     } catch (error) {
       console.error("Error fetching accounts:", error);
     } finally {
-      setLoading(false);
+      setGettingPage(false);
     }
   };
 
@@ -275,7 +277,7 @@ const Index = () => {
               display: "flex",
             }}
           >
-            <FacebookIcon fontSize="large" sx={{color: "#1778f4"}} />
+            <FacebookIcon fontSize="large" sx={{ color: "#1778f4" }} />
             <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: 'center', marginTop: "5px" }}>
               Facebook
             </Typography>
@@ -288,16 +290,16 @@ const Index = () => {
           ) : (
             <>
 
-<Box sx={{ margin: 0, width: "100%", }} >
-            <Typography sx={{
-              fontSize: "14px",
-              color: "#373737",
-              paddingTop: "20px",
-            }}>
-              Select the accounts that you want to add.
-            </Typography>
-            <MDInput label="Search here" sx={{ margin: 0, width: "100%", }} />
-          </Box>
+              <Box sx={{ margin: 0, width: "100%", }} >
+                <Typography sx={{
+                  fontSize: "14px",
+                  color: "#373737",
+                  paddingTop: "20px",
+                }}>
+                  Select the accounts that you want to add.
+                </Typography>
+                <MDInput label="Search here" sx={{ margin: 0, width: "100%", }} />
+              </Box>
               <Box
                 sx={{
                   maxHeight: "60vh",
@@ -399,36 +401,35 @@ const Index = () => {
                   If you need to add another Facebook account, simply log out of or switch Facebook accounts first.
                 </Typography>
               </Box>
-                <Box
-                         sx={{
-                           display: "flex",
-                           justifyContent: "flex-end", // ✅ Aligns buttons to the right
-                           alignItems: "center",
-                           gap: "1rem",
-             
-                           width: "100%", // Prevents overflow
-                         }}
-                       >
-               
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end", // ✅ Aligns buttons to the right
+                  alignItems: "center",
+                  gap: "1rem",
+                  width: "100%", // Prevents overflow
+                }}
+              >
+
                 <MDButton
-                            variant="gradient"
-                            sx={{
-                              margin: "0.09375rem 1px",
-                              mb: 2,
-                              backgroundColor: "#01cbc6 !important", // Ensures background color applies
-                              color: "white !important", // ✅ Forces white text
-                              "&:hover": {
-                                backgroundColor: "#00b3ad !important", // Slightly darker on hover
-                              },
-                            }}
-                            onClick={()=>{
-                              
-                            }}
-                          >
-                            Continue
-                          </MDButton>
-                          </Box>
-              
+                  variant="gradient"
+                  sx={{
+                    margin: "0.09375rem 1px",
+                    mb: 2,
+                    backgroundColor: "#01cbc6 !important", // Ensures background color applies
+                    color: "white !important", // ✅ Forces white text
+                    "&:hover": {
+                      backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                    },
+                  }}
+                  onClick={() => {
+
+                  }}
+                >
+                  Continue
+                </MDButton>
+              </Box>
+
             </>
           )}
         </Box>
@@ -528,6 +529,24 @@ const Index = () => {
           </Box>
         </Box>
       </Modal>
+      {gettingPage && (
+  <Box
+    sx={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      zIndex: 9999,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+  >
+    <CircularProgress size={60} />
+  </Box>
+)}
     </Box>
   );
 };

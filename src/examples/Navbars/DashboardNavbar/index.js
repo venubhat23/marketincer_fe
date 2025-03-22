@@ -239,13 +239,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 aria-haspopup="true"
                 aria-expanded={open ? "true" : undefined}
                 onClick={handleClick}
-                // onClick={() => {
-                //   navigate("/profile");
-                // }}
               >
                 <Icon sx={iconsStyle}>account_circle</Icon>
               </IconButton>
-              {/* </Link> */}
               <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -264,22 +260,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   Profile
                 </MenuItem>
                 <Divider />
-                {/* <MenuItem
-                  onClick={() => {
-                    navigate("/profile");
-                  }}
-                >
-                  {" "}
-                  <ListItemIcon>
-                    <Settings />
-                  </ListItemIcon>
-                  Settings
-                </MenuItem> */}
                 <MenuItem
                   onClick={() => {
-                    // localStorage.clear();
-                    // // window.location.href = "/dashboard";
-                    // navigate("/authentication/sign-in")
                     logout();
                   }}
                 >
