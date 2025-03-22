@@ -141,6 +141,7 @@
   
   .rbc-month-row .rbc-event-content {
     height: auto;
+    width: 175px;
   }
   
   .rbc-month-view .rbc-today,
@@ -455,4 +456,12 @@
 
   .calender-serch input {
     padding: 6px;
+  }
+
+  .calendar-search .MuiInputBase-root {
+    padding-right: 8px !important;
+  }
+  
+  .calendar-search .MuiInputAdornment-root {
+    margin-right: 4px;
   }

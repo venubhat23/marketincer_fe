@@ -10,13 +10,17 @@ import MDButton from "@/components/MDButton";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import axios from "axios";
 import { Modal, Box, IconButton, Button, Typography,  InputLabel, FormControl, Select,
-    TextField,  MenuItem,} from '@mui/material';
+    TextField,  MenuItem, Divider, ListItemIcon} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MyEditor from "../../components/Editor";
 import MDInput from "@/components/MDInput";
 import {
     Avatar,
 } from "@mui/material";
+import Menu from "@mui/material/Menu";
+import TuneIcon from '@mui/icons-material/Tune';
+import RestoreIcon from '@mui/icons-material/Restore';
+import InputAdornment from '@mui/material/InputAdornment';
 
 const localizer = momentLocalizer(moment);
 
@@ -96,6 +100,7 @@ const EventCard = ({ event }) => {
                         display: "flex",
                         alignItems: "center",
                         gap: "5px",
+                        color: "#525252"
                     }}
                 >
                     <InstagramIcon sx={{ color: "#E1306C", width: 25, height: 25, }} />
@@ -497,7 +502,18 @@ const CustomDateCell = ({ date }) => {
 };
 const CustomToolbar = ({ label, view, onNavigate, onView }) => {
     const [currentView, setCurrentView] = React.useState('month');
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
+    const open = Boolean(anchorEl);
+
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+      };
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
     const handleViewChange = (view) => {
         setCurrentView(view);
         onView(view);
@@ -547,7 +563,31 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                         gap: "5px",
                     }}>
                         
-        <MDInput label="Search here" className="calender-serch" sx={{padding: "6px"}}/>
+       
+
+                        <MDInput
+                            label="Search here"
+                            className="calendar-search"
+                            sx={{ padding: "6px" }}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            InputProps={{
+                                endAdornment: (
+                                <InputAdornment position="end">
+                                    {searchTerm && (
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => setSearchTerm('')}
+                                        sx={{ p: 0.5, mr: -1 }}
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                    )}
+                                </InputAdornment>
+                                ),
+                            }}
+                            />
+
                 <div className="view-switcher">
                     <select
                         className="feed-dropdown"
@@ -565,12 +605,44 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                         onChange={(e) => handleViewChange(e.target.value)}
                         value={currentView}
                     >
-                        <option value="feed">Feed View</option>
+                      
                         <option value="month">Monthly View</option>
                         <option value="week">Weekly View</option>
                         <option value="day">Daily View</option>
                     </select>
                 </div>
+                <IconButton
+                
+                size="small"
+                disableRipple
+                id="basic-button"
+                aria-controls={open ? "basic-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                onClick={handleClick}
+              >
+                <TuneIcon />
+              </IconButton>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+               
+                  }}
+                >
+                  <RestoreIcon sx={{ width: 20, height: 20, marginRight: "15px" }} />{" "}
+                  Reset Filters
+                </MenuItem>
+          
+                
+              </Menu>
             </Box>
         </div>
     );
@@ -670,7 +742,7 @@ const CalendarComponent = (props) => {
 
 
     return (
-        <div style={{ height: 'auto', minHeight: 600, width: "90%" }}>
+        <div style={{ height: 'auto', minHeight: 600, width: "1400px" }}>
             <Calendar
                 localizer={localizer}
                 events={myEventsList}
