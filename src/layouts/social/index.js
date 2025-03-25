@@ -12,11 +12,12 @@ import DashboardLayout from "@/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "@/examples/Navbars/DashboardNavbar";
 import MDButton from "@/components/MDButton";
 import AddIcon from "@mui/icons-material/Add";
+import Skeleton from "@mui/material/Skeleton";
 
 const Index = () => {
   const [selectedPlatform, setSelectedPlatform] = useState("Instagram");
   const [pages, setPages] = useState([]);
-   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const fetchAccountsFromAPI = async () => {
 
     setLoading(true);
@@ -36,7 +37,7 @@ const Index = () => {
 
       const data = await response.json();
       setPages(data.data.accounts); // Store the fetched accounts in the state
-     
+
 
     } catch (error) {
       console.error("Error fetching accounts:", error);
@@ -51,7 +52,7 @@ const Index = () => {
   }, []);
 
   const handleDisConnect = async (account) => {
- 
+
     const token = localStorage.getItem("userToken");
     try {
       // Call the connect API with the selected account's data
@@ -155,34 +156,62 @@ const Index = () => {
                 </MDButton>
               </Box>
               <Divider sx={{ marginBottom: "20px" }} />
-              <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", gap: "10px" }}>
-                {pages.map((page, index) => (
-                  <Box key={index} sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "400px", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", marginBottom: "10px", gap: "10px" }}>
+
+                {loading ? (<>
+
+                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
                     <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-                      <Avatar sx={{ marginRight: "10px" }}    src={page.page_info.picture.data.url}>{page.icon}</Avatar>
+                      <Skeleton animation="wave" variant="circular" width={40} height={40} />
                       <Box>
-                        <Typography variant="body1" sx={{ fontSize: "12px", fontWeight: "700" }}>{page.name}</Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px" }}>
-                          {page.username}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px", color: "#00be4e" }}>
-                          Active
-                        </Typography>
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="200px"
+                          style={{ marginBottom: 6 }}
+                        />
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="100px"
+                          style={{ marginBottom: 6 }}
+                        />
+
                       </Box>
                     </Box>
-
-                    <MDButton
-                      variant="outlined"
-                      color="info"
-                      size="small"
-                      sx={{ padding: "5px", mb: 2, fontSize: "12px", marginLeft: "auto" }}
-                      onClick={() => {handleDisConnect(page) }}
-                    >
-                      Disconnect
-                    </MDButton>
                   </Box>
+                </>) : (
+                  <>
+                    {pages.map((page, index) => (
+                      <Box key={index} sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+                          <Avatar sx={{ marginRight: "10px" }} src={page.page_info.picture.data.url}>{page.icon}</Avatar>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontSize: "12px", fontWeight: "700" }}>{page.name}</Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px" }}>
+                              {page.username}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px", color: "#00be4e" }}>
+                              Active
+                            </Typography>
+                          </Box>
+                        </Box>
 
-                ))}
+                        <MDButton
+                          variant="outlined"
+                          color="info"
+                          size="small"
+                          sx={{ padding: "5px", mb: 2, fontSize: "12px", marginLeft: "auto" }}
+                          onClick={() => { handleDisConnect(page) }}
+                        >
+                          Disconnect
+                        </MDButton>
+                      </Box>
+
+                    ))}
+                  </>
+                )}
+
               </Box>
             </Box>
           </Grid>
@@ -215,7 +244,37 @@ const Index = () => {
                 </MDButton>
               </Box>
               <Divider sx={{ marginBottom: "20px" }} />
-             
+              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", marginBottom: "10px", gap: "10px" }}>
+
+                {loading ? (<>
+
+                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+                      <Skeleton animation="wave" variant="circular" width={40} height={40} />
+                      <Box>
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="200px"
+                          style={{ marginBottom: 6 }}
+                        />
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="100px"
+                          style={{ marginBottom: 6 }}
+                        />
+
+                      </Box>
+                    </Box>
+                  </Box>
+                </>) : (
+                  <>
+
+                  </>
+                )}
+
+              </Box>
             </Box>
           </Grid>
 
@@ -248,7 +307,37 @@ const Index = () => {
               </Box>
 
               <Divider sx={{ marginBottom: "20px" }} />
-              
+              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", marginBottom: "10px", gap: "10px" }}>
+
+                {loading ? (<>
+
+                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+                      <Skeleton animation="wave" variant="circular" width={40} height={40} />
+                      <Box>
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="200px"
+                          style={{ marginBottom: 6 }}
+                        />
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="100px"
+                          style={{ marginBottom: 6 }}
+                        />
+
+                      </Box>
+                    </Box>
+                  </Box>
+                </>) : (
+                  <>
+
+                  </>
+                )}
+
+              </Box>
             </Box>
           </Grid>
 
@@ -280,7 +369,37 @@ const Index = () => {
                 </MDButton>
               </Box>
               <Divider sx={{ marginBottom: "20px" }} />
-              
+              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", marginBottom: "10px", gap: "10px" }}>
+
+                {loading ? (<>
+
+                  <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+                      <Skeleton animation="wave" variant="circular" width={40} height={40} />
+                      <Box>
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="200px"
+                          style={{ marginBottom: 6 }}
+                        />
+                        <Skeleton
+                          animation={true}
+                          height={10}
+                          width="100px"
+                          style={{ marginBottom: 6 }}
+                        />
+
+                      </Box>
+                    </Box>
+                  </Box>
+                </>) : (
+                  <>
+
+                  </>
+                )}
+
+              </Box>
             </Box>
           </Grid>
         </Grid>

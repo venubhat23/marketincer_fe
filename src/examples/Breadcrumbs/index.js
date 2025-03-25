@@ -39,7 +39,7 @@ function Breadcrumbs({ icon, title, route, light }) {
           },
         }}
       >
-        <Link to="/">
+        <Link to="/dashboard">
           <MDTypography
             component="span"
             variant="body2"
@@ -82,7 +82,7 @@ function Breadcrumbs({ icon, title, route, light }) {
         color={light ? "white" : "dark"}
         noWrap
       >
-        {title.replace("-", " ")}
+       
       </MDTypography>
     </MDBox>
   );

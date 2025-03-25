@@ -104,7 +104,7 @@ const index = () => {
                         cursor: "pointer", // Makes avatars clickable
                       }}
                       onClick={() => handleAvatarClick(page.social_id)}
-                    >
+                      >
                       <Box sx={{ position: "relative" }}>
                         {/* Avatar */}
                         <Avatar
