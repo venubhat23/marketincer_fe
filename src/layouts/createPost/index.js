@@ -316,7 +316,7 @@ const CreatePost = () => {
 
     fetchAccountsFromAPI();
 
-  }, []);
+  });
   useEffect(() => {
 
     console.log(selectedPages);

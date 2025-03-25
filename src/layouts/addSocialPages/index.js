@@ -11,7 +11,7 @@ import PinterestIcon from '@mui/icons-material/Pinterest';
 import { Twitter } from "@mui/icons-material";
 import MDButton from "@/components/MDButton";
 import CloseIcon from '@mui/icons-material/Close';
-import onBoardImage from "@/assets/images/on-board-social-accounts.jpeg";
+import onBoardImage from "/on-board-social-accounts.jpeg";
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import GoogleIcon from '@mui/icons-material/Google';
 import TelegramIcon from '@mui/icons-material/Telegram';
@@ -146,6 +146,11 @@ const Index = () => {
       console.log("Connect API Response:", data);
 
       if (data.status) {
+        const updatedPages = pages.map((pg) =>
+          pg.page_id === account.page_id ? { ...pg, connected: true } : pg
+        );
+  
+        setPages(updatedPages);
         alert(`${account.name} connected successfully!`);
       } else {
         alert(`Failed to connect ${account.name}`);
@@ -298,7 +303,10 @@ const Index = () => {
                 }}>
                   Select the accounts that you want to add.
                 </Typography>
-                <MDInput label="Search here" sx={{ margin: 0, width: "100%", }} />
+                {pages.length > 1 && (
+                    <MDInput label="Search here" sx={{ margin: 0, width: "100%", }} />
+                )}
+            
               </Box>
               <Box
                 sx={{
@@ -307,7 +315,8 @@ const Index = () => {
                   listStyleType: "none",
                   paddingLeft: 0,
                   paddingRight: 0,
-                  marginTop: "20px"
+                  marginTop: "20px",
+                  width: "100%"
                 }}
               >
                 {pages.map((account) => (
@@ -423,7 +432,7 @@ const Index = () => {
                     },
                   }}
                   onClick={() => {
-
+                    window.location.href = "/social-pages";
                   }}
                 >
                   Continue

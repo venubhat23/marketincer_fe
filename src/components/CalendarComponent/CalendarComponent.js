@@ -9,8 +9,10 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MDButton from "@/components/MDButton";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import axios from "axios";
-import { Modal, Box, IconButton, Button, Typography,  InputLabel, FormControl, Select,
-    TextField,  MenuItem, Divider, ListItemIcon} from '@mui/material';
+import {
+    Modal, Box, IconButton, Button, Typography, InputLabel, FormControl, Select,
+    TextField, MenuItem, Divider, ListItemIcon
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MyEditor from "../../components/Editor";
 import MDInput from "@/components/MDInput";
@@ -21,6 +23,11 @@ import Menu from "@mui/material/Menu";
 import TuneIcon from '@mui/icons-material/Tune';
 import RestoreIcon from '@mui/icons-material/Restore';
 import InputAdornment from '@mui/material/InputAdornment';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import ForumIcon from '@mui/icons-material/Forum';
+import ShareIcon from '@mui/icons-material/Share';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 const localizer = momentLocalizer(moment);
 
@@ -119,25 +126,25 @@ const EventCard = ({ event }) => {
 };
 
 const EventModal = ({ event, open, onClose }) => {
- const [postContent, setPostContent] = useState(event?.comments || "");
+    const [postContent, setPostContent] = useState(event?.comments || "");
     const [posting, setPosting] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-     const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-      const [file, setFile] = useState(null);
-      const [uploading, setUploading] = useState(false);
-      const [loading, setLoading] = useState(false);
-      const [selectedPages, setSelectedPages] = useState([]);
-      const [brandName, setBrandName] = useState("");
-      const fileInputRef = useRef(null);
-      const [uploadedFileName, setUploadedFileName] = useState("");
-   useEffect(() => {
+    const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [selectedPages, setSelectedPages] = useState([]);
+    const [brandName, setBrandName] = useState("");
+    const fileInputRef = useRef(null);
+    const [uploadedFileName, setUploadedFileName] = useState("");
+    useEffect(() => {
         setPostContent(event?.comments);
         setUploadedImageUrl(event?.s3_url);
         setUploadedFileName(event?.s3_url?.split('/').pop() || '');
         setBrandName(event?.brand_name);
     }, [event]);
     if (!event) return null;
- 
+
     const handlePublish = async (status = "publish") => {
 
         setPosting(true);
@@ -171,69 +178,69 @@ const EventModal = ({ event, open, onClose }) => {
     };
 
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setUploadedFileName(selectedFile.name);
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            setUploadedFileName(selectedFile.name);
 
-      // ✅ Auto-upload the file after selection
-      handleFileUpload(selectedFile);
-    }
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const droppedFile = event.dataTransfer.files[0];
-    if (droppedFile) {
-      setFile(droppedFile);
-      setUploadedFileName(droppedFile.name);
-
-      // ✅ Auto-upload the file after drop
-      handleFileUpload(droppedFile);
-    }
-  };
-
-  const handleFileUpload = async (file) => {
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch(
-        "https://kitintellect.tech/storage/public/api/upload/aaFacebook",
-        {
-          method: "POST",
-          body: formData,
+            // ✅ Auto-upload the file after selection
+            handleFileUpload(selectedFile);
         }
-      );
+    };
 
-      const data = await response.json();
+    const handleDrop = (event) => {
+        event.preventDefault();
+        const droppedFile = event.dataTransfer.files[0];
+        if (droppedFile) {
+            setFile(droppedFile);
+            setUploadedFileName(droppedFile.name);
 
-      if (data.url) {
-        setUploadedImageUrl(data.url); // ✅ Store uploaded file URL
-        toast.success("File uploaded successfully!", {
-          position: "top-right",
-          autoClose: 5000,
-        });
-      } else {
-        throw new Error("Upload failed");
-      }
-    } catch (error) {
-      toast.error("File upload failed!", {
-        position: "top-right",
-        autoClose: 5000,
-      });
-      console.error("Error uploading file:", error);
-    } finally {
-      setUploading(false);
-    }
-  };
-  const handleBoxClick = () => {
-    fileInputRef.current.click(); // ✅ Triggers the hidden file input
-  };
+            // ✅ Auto-upload the file after drop
+            handleFileUpload(droppedFile);
+        }
+    };
+
+    const handleFileUpload = async (file) => {
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch(
+                "https://kitintellect.tech/storage/public/api/upload/aaFacebook",
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.url) {
+                setUploadedImageUrl(data.url); // ✅ Store uploaded file URL
+                toast.success("File uploaded successfully!", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            } else {
+                throw new Error("Upload failed");
+            }
+        } catch (error) {
+            toast.error("File upload failed!", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+            console.error("Error uploading file:", error);
+        } finally {
+            setUploading(false);
+        }
+    };
+    const handleBoxClick = () => {
+        fileInputRef.current.click(); // ✅ Triggers the hidden file input
+    };
 
     return (
         <Modal
@@ -288,200 +295,245 @@ const EventModal = ({ event, open, onClose }) => {
                             </span>
                         </div>
                     </Box>
-                    { isEdit ? (<>
+                    {isEdit ? (<>
                         <Box sx={{ width: "100%" }}>
-            <Box sx={{ width: "100%", position: "relative", marginBottom: "10px" }}>
-              <MyEditor value={postContent} onChange={setPostContent} />
+                            <Box sx={{ width: "100%", position: "relative", marginBottom: "10px" }}>
+                                <MyEditor value={postContent} onChange={setPostContent} />
 
-              <Box
-                display="flex"
-                sx={{
-                  marginBottom: "0px",
-                  position: "absolute",
-                  bottom: "-9px",
-                  gap: "0px"
-                }}
-              >
-                <MDButton
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    margin: "0.09375rem 1rem",
-                    mb: 2,
-                    borderRadius: "50px", // ✅ Fully rounded border
-                    borderColor: "#B0B0B0", // ✅ Gray border
-                    color: "#757575", // ✅ Gray text
-                    backgroundColor: "#F0F0F0", // ✅ Light gray background
-                    "&:hover": {
-                      backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
-                    },
-                  }}
-                  onClick={() => { }}
-                  to="/social"
-                >
-                  # Hashtag
-                </MDButton>
-                <MDButton
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    margin: "0.09375rem 0rem",
-                    mb: 2,
-                    borderRadius: "50px", // ✅ Fully rounded border
-                    borderColor: "#B0B0B0", // ✅ Gray border
-                    color: "#757575", // ✅ Gray text
-                    backgroundColor: "#F0F0F0", // ✅ Light gray background
-                    "&:hover": {
-                      backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
-                    },
-                  }}
-                  onClick={() => { }}
-                  to="/social"
-                >
-                  * AI Assist
-                </MDButton>
+                                <Box
+                                    display="flex"
+                                    sx={{
+                                        marginBottom: "0px",
+                                        position: "absolute",
+                                        bottom: "-9px",
+                                        gap: "0px"
+                                    }}
+                                >
+                                    <MDButton
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{
+                                            margin: "0.09375rem 1rem",
+                                            mb: 2,
+                                            borderRadius: "50px", // ✅ Fully rounded border
+                                            borderColor: "#B0B0B0", // ✅ Gray border
+                                            color: "#757575", // ✅ Gray text
+                                            backgroundColor: "#F0F0F0", // ✅ Light gray background
+                                            "&:hover": {
+                                                backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
+                                            },
+                                        }}
+                                        onClick={() => { }}
+                                        to="/social"
+                                    >
+                                        # Hashtag
+                                    </MDButton>
+                                    <MDButton
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{
+                                            margin: "0.09375rem 0rem",
+                                            mb: 2,
+                                            borderRadius: "50px", // ✅ Fully rounded border
+                                            borderColor: "#B0B0B0", // ✅ Gray border
+                                            color: "#757575", // ✅ Gray text
+                                            backgroundColor: "#F0F0F0", // ✅ Light gray background
+                                            "&:hover": {
+                                                backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
+                                            },
+                                        }}
+                                        onClick={() => { }}
+                                        to="/social"
+                                    >
+                                        * AI Assist
+                                    </MDButton>
 
-              </Box>
-            </Box>
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Brand</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Brand"
-                sx={{
-                  width: "-webkit-fill-available",
-                  height: "50px",
-                  margin: "0px",
-                  marginTop: "10px"
-                }}
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-              >
-                <MenuItem value={"d-mart"}>D-Mart</MenuItem>
-                <MenuItem value={"v-mart"}>V-Mart</MenuItem>
-                <MenuItem value={"blinkit"}>Blinkit</MenuItem>
-              </Select>
-            </FormControl>
+                                </Box>
+                            </Box>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Brand</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    label="Brand"
+                                    sx={{
+                                        width: "-webkit-fill-available",
+                                        height: "50px",
+                                        margin: "0px",
+                                        marginTop: "10px"
+                                    }}
+                                    value={brandName}
+                                    onChange={(e) => setBrandName(e.target.value)}
+                                >
+                                    <MenuItem value={"d-mart"}>D-Mart</MenuItem>
+                                    <MenuItem value={"v-mart"}>V-Mart</MenuItem>
+                                    <MenuItem value={"blinkit"}>Blinkit</MenuItem>
+                                </Select>
+                            </FormControl>
 
-            {/* File Upload Section */}
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-              sx={{
-                width: "100%",
-                padding: "16px",
-                border: "1px dashed #ccc",
-                borderRadius: "8px",
-                backgroundColor: "#f9f9f9",
-                textAlign: "center",
-                cursor: "pointer",
-                my: 2,
-                margin: "10px",
-                marginLeft: "0px",
-              }}
-              onClick={handleBoxClick}
-              onDrop={handleDrop} // ✅ Handles dropped files
-              onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
-            >
-              <Typography variant="body1" sx={{ color: "#666" }}>
-                Click or Drag & Drop media
-              </Typography>
+                            {/* File Upload Section */}
+                            <Box
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                flexDirection="column"
+                                sx={{
+                                    width: "100%",
+                                    padding: "16px",
+                                    border: "1px dashed #ccc",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#f9f9f9",
+                                    textAlign: "center",
+                                    cursor: "pointer",
+                                    my: 2,
+                                    margin: "10px",
+                                    marginLeft: "0px",
+                                }}
+                                onClick={handleBoxClick}
+                                onDrop={handleDrop} // ✅ Handles dropped files
+                                onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
+                            >
+                                <Typography variant="body1" sx={{ color: "#666" }}>
+                                    Click or Drag & Drop media
+                                </Typography>
 
-              {uploadedFileName && (
-                <Typography variant="body2" sx={{ color: "#444", mt: 1 }}>
-                  Selected File: {uploadedFileName}
-                </Typography>
-              )}
+                                {uploadedFileName && (
+                                    <Typography variant="body2" sx={{ color: "#444", mt: 1 }}>
+                                        Selected File: {uploadedFileName}
+                                    </Typography>
+                                )}
 
-              {uploading && <Typography variant="body2">Uploading...</Typography>}
-            </Box>
+                                {uploading && <Typography variant="body2">Uploading...</Typography>}
+                            </Box>
 
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
+                            {/* Hidden File Input */}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                style={{ display: "none" }}
+                            />
 
-          </Box>
-                    </>): (<>
+                        </Box>
+                    </>) : (<>
                         <p style={{
-                        fontSize: '14px',
-                        color: '#444',
-                        marginBottom: '10px',
-                        lineHeight: '1.5'
-                    }}>
-                        <span dangerouslySetInnerHTML={{ __html: event.comments }} />
-                    </p>
-                    <div className="model-event-image-container">
-                        <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
-                    </div>
+                            fontSize: '14px',
+                            color: '#444',
+                            marginBottom: '10px',
+                            lineHeight: '1.5'
+                        }}>
+                            <span dangerouslySetInnerHTML={{ __html: event.comments }} />
+                        </p>
+                        <div className="model-event-image-container">
+                            <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
+                        </div>
 
-
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        gap: '8px',
-                        borderTop: '1px solid #f0f0f0',
-                        paddingTop: '16px'
-                    }}>
-                        <Button
-                            variant="link"
-                            sx={{ height: "10px", color: "red", marginTop: "12px" }}
-                        >
-                            Delete
-                        </Button>
-
-                        <MDButton
-                            variant="outlined"
-                            color="info"
-                            size="small"
-                            sx={{ height: "10px", }}
-                            onClick={() => setIsEdit(true)}
-
-                        >
-                            Edit
-                        </MDButton>
-                        <MDButton
-                            variant="gradient"
-                            size="small"
+                        <Typography
+                            variant="body1"
                             sx={{
-                                height: "10px",
-                                backgroundColor: "#01cbc6 !important", // Ensures background color applies
-                                color: "white !important", // ✅ Forces white text
-                                "&:hover": {
-                                    backgroundColor: "#00b3ad !important", // Slightly darker on hover
-                                },
+                                fontSize: "14px",
+                                color: "#000000",
                             }}
-                            onClick={() => handlePublish("publish")}
-                            disabled={posting}
-                        >
-                            Publish
-                        </MDButton>
-                        <MDButton
-                            variant="gradient"
-                            size="small"
-                            sx={{
-                                height: "10px",
-                                backgroundColor: "#01cbc6 !important", // Ensures background color applies
-                                color: "white !important", // ✅ Forces white text
-                                "&:hover": {
-                                    backgroundColor: "#00b3ad !important", // Slightly darker on hover
-                                },
-                            }}
-                            onClick={() => handlePublish("shedule")}
-                            disabled={posting}
-                        >
-                            Schedule
-                        </MDButton>
+                        >Link in Bio<ErrorOutlineIcon
+                                sx={{ width: 29, height: 29, paddingTop: "15px", border: "none" }}
+                            />
+                        </Typography>
+                        <Typography
+                            variant="body2"
 
-                    </div>
+                            sx={{
+                                fontSize: "14px",
+                                color: "#545454",
+                                marginBottom: "10px"
+                            }}
+                        >
+                            click <a href='#' sx={{
+                                color: "#4e4e4e",
+                            }}>here</a> to update your Link in Bio Settings
+                        </Typography>
+
+
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                borderTop: '1px solid #f0f0f0',
+                                paddingTop: '16px',
+                            }}
+                        >
+                            {/* Left side: 4 icons separated by | */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', color: '#9e9e9e' }}>
+                                <FmdGoodIcon style={{ color: '#9e9e9e' }} />
+                                <span>|</span>
+                                <ForumIcon style={{ color: '#9e9e9e' }} />
+                                <span>|</span>
+                                <ShareIcon style={{ color: '#9e9e9e' }} />
+                                <span>|</span>
+                                <RemoveRedEyeIcon style={{ color: '#9e9e9e' }} />
+                            </div>
+
+                            {/* Right side: Buttons */}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    gap: '8px',
+                                }}
+                            >
+                                <Button
+                                    variant="link"
+                                    sx={{ height: "10px", color: "red", marginTop: "12px" }}
+                                >
+                                    Delete
+                                </Button>
+
+                                <MDButton
+                                    variant="outlined"
+                                    color="info"
+                                    size="small"
+                                    sx={{ height: "10px" }}
+                                    onClick={() => setIsEdit(true)}
+                                >
+                                    Edit
+                                </MDButton>
+
+                                <MDButton
+                                    variant="gradient"
+                                    size="small"
+                                    sx={{
+                                        height: "10px",
+                                        backgroundColor: "#01cbc6 !important",
+                                        color: "white !important",
+                                        "&:hover": {
+                                            backgroundColor: "#00b3ad !important",
+                                        },
+                                    }}
+                                    onClick={() => handlePublish("publish")}
+                                    disabled={posting}
+                                >
+                                    Publish
+                                </MDButton>
+
+                                <MDButton
+                                    variant="gradient"
+                                    size="small"
+                                    sx={{
+                                        height: "10px",
+                                        backgroundColor: "#01cbc6 !important",
+                                        color: "white !important",
+                                        "&:hover": {
+                                            backgroundColor: "#00b3ad !important",
+                                        },
+                                    }}
+                                    onClick={() => handlePublish("shedule")}
+                                    disabled={posting}
+                                >
+                                    Schedule
+                                </MDButton>
+                            </div>
+                        </div>
                     </>)}
-                    
                 </div>
             </Box>
         </Modal>
@@ -510,10 +562,10 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
-      };
-      const handleClose = () => {
+    };
+    const handleClose = () => {
         setAnchorEl(null);
-      };
+    };
     const handleViewChange = (view) => {
         setCurrentView(view);
         onView(view);
@@ -557,24 +609,24 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                 </button>
             </div>
 
-            <Box className="toolbar-right"  sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
-                    }}>
-                        
-       
+            <Box className="toolbar-right" sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+            }}>
 
-                        <MDInput
-                            label="Search here"
-                            className="calendar-search"
-                            sx={{ padding: "6px" }}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            InputProps={{
-                                endAdornment: (
-                                <InputAdornment position="end">
-                                    {searchTerm && (
+
+
+                <MDInput
+                    label="Search here"
+                    className="calendar-search"
+                    sx={{ padding: "6px" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                {searchTerm && (
                                     <IconButton
                                         size="small"
                                         onClick={() => setSearchTerm('')}
@@ -582,16 +634,16 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                                     >
                                         <CloseIcon fontSize="small" />
                                     </IconButton>
-                                    )}
-                                </InputAdornment>
-                                ),
-                            }}
-                            />
+                                )}
+                            </InputAdornment>
+                        ),
+                    }}
+                />
 
                 <div className="view-switcher">
                     <select
                         className="feed-dropdown"
-                        
+
                     >
                         <option value="feed">All Post</option>
                         <option value="month">Scheduled</option>
@@ -605,44 +657,44 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                         onChange={(e) => handleViewChange(e.target.value)}
                         value={currentView}
                     >
-                      
+
                         <option value="month">Monthly View</option>
                         <option value="week">Weekly View</option>
                         <option value="day">Daily View</option>
                     </select>
                 </div>
                 <IconButton
-                
-                size="small"
-                disableRipple
-                id="basic-button"
-                aria-controls={open ? "basic-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
-                onClick={handleClick}
-              >
-                <TuneIcon />
-              </IconButton>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  "aria-labelledby": "basic-button",
-                }}
-              >
-                <MenuItem
-                  onClick={() => {
-               
-                  }}
+
+                    size="small"
+                    disableRipple
+                    id="basic-button"
+                    aria-controls={open ? "basic-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? "true" : undefined}
+                    onClick={handleClick}
                 >
-                  <RestoreIcon sx={{ width: 20, height: 20, marginRight: "15px" }} />{" "}
-                  Reset Filters
-                </MenuItem>
-          
-                
-              </Menu>
+                    <TuneIcon />
+                </IconButton>
+                <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                        "aria-labelledby": "basic-button",
+                    }}
+                >
+                    <MenuItem
+                        onClick={() => {
+
+                        }}
+                    >
+                        <RestoreIcon sx={{ width: 20, height: 20, marginRight: "15px" }} />{" "}
+                        Reset Filters
+                    </MenuItem>
+
+
+                </Menu>
             </Box>
         </div>
     );
@@ -767,7 +819,7 @@ const CalendarComponent = (props) => {
                     border: 'none',
                     borderRadius: '8px',
                     padding: '15px',
-                    paddingTop: '15px',
+                    paddingTop: '0px',
                     fontFamily: 'Arial, sans-serif'
                 }}
             />
