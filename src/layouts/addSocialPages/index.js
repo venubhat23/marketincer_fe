@@ -432,7 +432,7 @@ const Index = () => {
                     },
                   }}
                   onClick={() => {
-                    window.location.href = "/social-pages";
+                    window.location.href = "/dashboard";
                   }}
                 >
                   Continue
