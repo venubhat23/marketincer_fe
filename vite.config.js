@@ -13,7 +13,7 @@ export default defineConfig({
   // server: {
   //   proxy: {
   //     "/api": {
-  //       target: "https://marketincer-apis.onrender.com",
+  //       target: "https://marketincer-6.onrender.com",
   //       changeOrigin: true,
   //       secure: false,
   //     },

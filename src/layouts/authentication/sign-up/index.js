@@ -69,7 +69,7 @@ function Cover() {
   const mutation = useMutation({
     mutationFn: (userData) =>
       axios.post(
-        "https://marketincer-2.onrender.com/api/v1/signup",
+        "https://marketincer-7.onrender.com/api/v1/signup",
         userData
       ),
     onSuccess: (response) => {
