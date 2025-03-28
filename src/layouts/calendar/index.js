@@ -70,7 +70,7 @@ const index = () => {
     <>
       <Box>
         <DashboardLayout>
-          <DashboardNavbar />
+        
           <MDBox  pb={3}>
             <Box sx={{ display: "flex", marginBottom: "10px", }}>
               <Box

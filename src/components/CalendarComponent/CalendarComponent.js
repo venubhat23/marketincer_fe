@@ -28,6 +28,8 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import ForumIcon from '@mui/icons-material/Forum';
 import ShareIcon from '@mui/icons-material/Share';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/material_green.css";
 
 const localizer = momentLocalizer(moment);
 
@@ -107,10 +109,11 @@ const EventCard = ({ event }) => {
                         display: "flex",
                         alignItems: "center",
                         gap: "5px",
-                        color: "#525252"
+                        color: "#000000",
+                        fontSize: "13px"
                     }}
                 >
-                    <InstagramIcon sx={{ color: "#E1306C", width: 25, height: 25, }} />
+                    <InstagramIcon sx={{ color: "#E1306C", width: 20, height: 20, }} />
                     {event.page_data?.name}
                 </Box>
 
@@ -120,7 +123,7 @@ const EventCard = ({ event }) => {
                 <img src={event.s3_url} alt={event.page_data?.name} className="event-image" />
             </div>
             <div className="event-description">  <span dangerouslySetInnerHTML={{ __html: event.comments }} /> </div>
-            <button className="edit-button">✏️</button>
+            <button className="edit-button"><CalendarMonthIcon sx={{ color: "#3ec1af", width: 20, height: 20, }} /></button>
         </div>
     );
 };
@@ -555,7 +558,9 @@ const CustomDateCell = ({ date }) => {
 const CustomToolbar = ({ label, view, onNavigate, onView }) => {
     const [currentView, setCurrentView] = React.useState('month');
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedDateTime, setSelectedDateTime] = useState(new Date());
 
     const open = Boolean(anchorEl);
 
@@ -603,7 +608,7 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                 <button className="nav-button" onClick={() => onNavigate('PREV')}>
                     ‹
                 </button>
-                <h2 className="month-label">{getHeaderLabel()}</h2>
+                <h2 className="month-label" onClick={() => setOpenDateTimePicker(true)}>{getHeaderLabel()}</h2>
                 <button className="nav-button" onClick={() => onNavigate('NEXT')}>
                     ›
                 </button>
@@ -618,9 +623,10 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
 
 
                 <MDInput
-                    label="Search here"
+            placeholder="Search Here"
+            size="small"
                     className="calendar-search"
-                    sx={{ padding: "6px" }}
+                    sx={{ padding: "6px", }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     InputProps={{
@@ -696,6 +702,82 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
 
                 </Menu>
             </Box>
+            <Modal
+    open={openDateTimePicker}
+    onClose={() => setOpenDateTimePicker(false)}
+    aria-labelledby="modal-title"
+    aria-describedby="modal-description"
+>
+    <Box
+        sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            padding: "30px",
+            borderRadius: "10px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",  // ✅ this centers children horizontally
+        }}
+    >
+
+        <Box sx={{  }}>
+            <Flatpickr
+                options={{
+                    inline: true,
+                    enableTime: false,
+                    dateFormat: "Y-m-d",
+                }}
+                value={selectedDateTime}
+                onChange={([date]) => setSelectedDateTime(date)}
+            />
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end",   gap: 2, marginTop: "20px", width: "100%" }}>
+            <MDButton variant="outlined"
+                sx={{
+                    margin: "0.09375rem 1px",
+                    mb: 2,
+                    border: "1px solid #01cbc6",
+                    backgroundColor: "transparent !important",
+                    color: "#01cbc6 !important",
+                    "&:hover": {
+                        border: "1px solid #00b3ad",
+                        backgroundColor: "transparent !important",
+                    },
+                }}
+                onClick={() => setOpenDateTimePicker(false)}>
+                Cancel
+            </MDButton>
+            <MDButton variant="gradient"
+                onClick={() => { 
+                    if (currentView !== 'month') {
+                        onView('month');    
+                        setCurrentView('month');
+                    }
+                    onNavigate('DATE', selectedDateTime); // Fix this if needed
+                    setOpenDateTimePicker(false);
+                }}
+                sx={{
+                    margin: "0.09375rem 1px",
+                    mb: 2,
+                    backgroundColor: "#01cbc6 !important",
+                    color: "white !important",
+                    "&:hover": {
+                        backgroundColor: "#00b3ad !important",
+                    },
+                }}>
+                Save
+            </MDButton>
+        </Box>
+
+    </Box>
+</Modal>
+
         </div>
     );
 };
