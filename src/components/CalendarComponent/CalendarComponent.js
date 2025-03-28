@@ -165,7 +165,7 @@ const EventModal = ({ event, open, onClose }) => {
 
         try {
             const token = localStorage.getItem("userToken");
-            await axios.post("https://marketincer-apis.onrender.com/api/v1/posts", payloadData, {
+            await axios.post("https://marketincer-2.onrender.com/api/v1/posts", payloadData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
@@ -826,7 +826,7 @@ const CalendarComponent = (props) => {
             const { from, to } = getDateRange(currentDate, currentView);
 
             const response = await axios.get(
-                'https://marketincer-apis.onrender.com/api/v1/posts/search',
+                'https://marketincer-2.onrender.com/api/v1/posts/search',
                 {
                     params: {
                         from,

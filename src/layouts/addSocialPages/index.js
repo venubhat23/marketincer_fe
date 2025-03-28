@@ -95,7 +95,7 @@ const Index = () => {
     try {
       // Fetch the accounts from the dummy API
       const response = await fetch(
-        `https://marketincer-apis.onrender.com/api/v1/social_accounts/get_pages`, {
+        `https://marketincer-2.onrender.com/api/v1/social_accounts/get_pages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,7 +131,7 @@ const Index = () => {
     const token = localStorage.getItem("userToken");
     try {
       // Call the connect API with the selected account's data
-      const response = await fetch("https://marketincer-apis.onrender.com/api/v1/social_pages/connect", {
+      const response = await fetch("https://marketincer-2.onrender.com/api/v1/social_pages/connect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
