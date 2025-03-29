@@ -100,7 +100,7 @@ const CustomMonthRow = ({ dates, ...props }) => {
         </div>
     );
 };
-const EventCard = ({ event }) => {
+const EventCard = React.memo(({ event }) => {
     return (
         <div className="event-card">
             <div className="event-header">
@@ -126,7 +126,7 @@ const EventCard = ({ event }) => {
             <button className="edit-button"><CalendarMonthIcon sx={{ color: "#3ec1af", width: 20, height: 20, }} /></button>
         </div>
     );
-};
+});
 
 const EventModal = ({ event, open, onClose }) => {
     const [postContent, setPostContent] = useState(event?.comments || "");
@@ -556,7 +556,7 @@ const CustomDateCell = ({ date }) => {
     );
 };
 const CustomToolbar = ({ label, view, onNavigate, onView }) => {
-    const [currentView, setCurrentView] = React.useState('month');
+    const [currentView, setCurrentView] = React.useState(view);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -623,8 +623,8 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
 
 
                 <MDInput
-            placeholder="Search Here"
-            size="small"
+                    placeholder="Search Here"
+                    size="small"
                     className="calendar-search"
                     sx={{ padding: "6px", }}
                     value={searchTerm}
@@ -703,80 +703,80 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                 </Menu>
             </Box>
             <Modal
-    open={openDateTimePicker}
-    onClose={() => setOpenDateTimePicker(false)}
-    aria-labelledby="modal-title"
-    aria-describedby="modal-description"
->
-    <Box
-        sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            padding: "30px",
-            borderRadius: "10px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",  // ✅ this centers children horizontally
-        }}
-    >
+                open={openDateTimePicker}
+                onClose={() => setOpenDateTimePicker(false)}
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+            >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 400,
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        padding: "30px",
+                        borderRadius: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",  // ✅ this centers children horizontally
+                    }}
+                >
 
-        <Box sx={{  }}>
-            <Flatpickr
-                options={{
-                    inline: true,
-                    enableTime: false,
-                    dateFormat: "Y-m-d",
-                }}
-                value={selectedDateTime}
-                onChange={([date]) => setSelectedDateTime(date)}
-            />
-        </Box>
+                    <Box sx={{}}>
+                        <Flatpickr
+                            options={{
+                                inline: true,
+                                enableTime: false,
+                                dateFormat: "Y-m-d",
+                            }}
+                            value={selectedDateTime}
+                            onChange={([date]) => setSelectedDateTime(date)}
+                        />
+                    </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end",   gap: 2, marginTop: "20px", width: "100%" }}>
-            <MDButton variant="outlined"
-                sx={{
-                    margin: "0.09375rem 1px",
-                    mb: 2,
-                    border: "1px solid #01cbc6",
-                    backgroundColor: "transparent !important",
-                    color: "#01cbc6 !important",
-                    "&:hover": {
-                        border: "1px solid #00b3ad",
-                        backgroundColor: "transparent !important",
-                    },
-                }}
-                onClick={() => setOpenDateTimePicker(false)}>
-                Cancel
-            </MDButton>
-            <MDButton variant="gradient"
-                onClick={() => { 
-                    if (currentView !== 'month') {
-                        onView('month');    
-                        setCurrentView('month');
-                    }
-                    onNavigate('DATE', selectedDateTime); // Fix this if needed
-                    setOpenDateTimePicker(false);
-                }}
-                sx={{
-                    margin: "0.09375rem 1px",
-                    mb: 2,
-                    backgroundColor: "#01cbc6 !important",
-                    color: "white !important",
-                    "&:hover": {
-                        backgroundColor: "#00b3ad !important",
-                    },
-                }}>
-                Save
-            </MDButton>
-        </Box>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: "20px", width: "100%" }}>
+                        <MDButton variant="outlined"
+                            sx={{
+                                margin: "0.09375rem 1px",
+                                mb: 2,
+                                border: "1px solid #01cbc6",
+                                backgroundColor: "transparent !important",
+                                color: "#01cbc6 !important",
+                                "&:hover": {
+                                    border: "1px solid #00b3ad",
+                                    backgroundColor: "transparent !important",
+                                },
+                            }}
+                            onClick={() => setOpenDateTimePicker(false)}>
+                            Cancel
+                        </MDButton>
+                        <MDButton variant="gradient"
+                            onClick={() => {
+                                if (currentView !== 'month') {
+                                    onView('month');
+                                    setCurrentView('month');
+                                }
+                                onNavigate('DATE', selectedDateTime); // Fix this if needed
+                                setOpenDateTimePicker(false);
+                            }}
+                            sx={{
+                                margin: "0.09375rem 1px",
+                                mb: 2,
+                                backgroundColor: "#01cbc6 !important",
+                                color: "white !important",
+                                "&:hover": {
+                                    backgroundColor: "#00b3ad !important",
+                                },
+                            }}>
+                            Save
+                        </MDButton>
+                    </Box>
 
-    </Box>
-</Modal>
+                </Box>
+            </Modal>
 
         </div>
     );
@@ -856,6 +856,11 @@ const CalendarComponent = (props) => {
         }
     };
 
+
+    useEffect(() => {
+        console.log("myEventsList->>>>>>>",myEventsList);
+    }, [myEventsList]);
+
     useEffect(() => {
         fetchEvents();
     }, [currentView, currentDate, props.selectedPages]);
@@ -886,24 +891,40 @@ const CalendarComponent = (props) => {
                 onNavigate={handleNavigate}
                 date={currentDate}
                 view={currentView}
+                min={new Date(2025, 0, 1, 0, 0)} // Start of day
+                max={new Date(2025, 11, 31, 23, 59)} // End of day
+                step={60} // 60-minute intervals
+                timeslots={1} // Single column per hour
+              
                 components={{
                     month: {
                         dateHeader: CustomDateCell,
                         row: CustomMonthRow
                     },
-
+                    week: {
+                        event: EventCard // Add this for week view
+                      },
+                      day: {
+                        event: EventCard // Add this for day view
+                      },
                     toolbar: (props) => <CustomToolbar {...props} />,
                     event: EventCard
                 }}
+                dayLayoutAlgorithm="no-overlap"
                 onSelectEvent={handleEventClick}
                 style={{
-                    marginTop: '0px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    paddingTop: '0px',
-                    fontFamily: 'Arial, sans-serif'
-                }}
+                    ...props.style,
+                    overflow: 'visible',
+                    position: 'relative' // Add this
+                  }}
+                eventPropGetter={(event) => ({
+                    style: {
+                      display: 'block', // Force block layout
+                      position: 'static', // Override absolute positioning
+                      height: 'auto', // Allow natural height
+                      overflow: 'visible' // Show overflow content
+                    }
+                  })}
             />
             <EventModal
                 event={selectedEvent}

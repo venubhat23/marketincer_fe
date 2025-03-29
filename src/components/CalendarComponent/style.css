@@ -472,3 +472,28 @@
   .flatpickr-input[readonly] {
     visibility: hidden;
   }
+
+  .rbc-time-view .rbc-event {
+    position: static !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  
+  /* Fix for month view */
+  .rbc-month-view .rbc-event {
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  
+  /* Event card container */
+  .event-card {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    min-height: 60px;
+    z-index: 1; /* Ensure cards stay above grid */
+  }
