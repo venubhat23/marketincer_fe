@@ -316,7 +316,7 @@ const CreatePost = () => {
 
     fetchAccountsFromAPI();
 
-  });
+  }, []);
   useEffect(() => {
 
     console.log(selectedPages);
@@ -866,6 +866,7 @@ const CreatePost = () => {
         onClick={() => {
           setOpen(true);
           setOpenAnother(true);
+          fetchAccountsFromAPI();
         }}
       >
         Create Post
