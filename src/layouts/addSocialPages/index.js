@@ -18,15 +18,16 @@ import TelegramIcon from '@mui/icons-material/Telegram';
 import Divider from "@mui/material/Divider";
 // Material Dashboard 2 React components
 import MDInput from "@/components/MDInput";
+import MDSnackbar from "@/components/MDSnackbar";
 
 const FACEBOOK_APP_ID = "499798672825129";
 const FACEBOOK_APP_SECRET = "0972b471f1d251f8db7762be1db4613c";
-// const REDIRECT_URI = "http://localhost:5173/social";
+const REDIRECT_URI = "http://localhost:5173/social";
 // const FACEBOOK_APP_ID = "658464799854317";
 // const FACEBOOK_APP_SECRET = "b9d95073b6749e1aabc63d5bbad45529";
 // const REDIRECT_URI = "https://marketincerfe.kukus.in/social";
 
-const REDIRECT_URI = "https://www.marketincer.com/social";
+// const REDIRECT_URI = "https://www.marketincer.com/social";
 
 const Index = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -35,6 +36,9 @@ const Index = () => {
   const [pages, setPages] = useState([]);
   const [instagramAccounts, setInstagramAccounts] = useState([]);
   const [gettingPage, setGettingPage] = useState(false);
+    const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = () => setSuccessSB(true);
+  const closeSuccessSB = () => setSuccessSB(false);
 
 
   useEffect(() => {
@@ -89,32 +93,69 @@ const Index = () => {
 
 
   const fetchAccountsFromAPI = async (authCode) => {
-
     setGettingPage(true);
     const token = localStorage.getItem("userToken");
     try {
-      // Fetch the accounts from the dummy API
       const response = await fetch(
-        `https://marketincer-7.onrender.com/api/v1/social_accounts/get_pages`, {
+        `https://marketincer-7.onrender.com/api/v1/social_accounts/get_pages`, 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            auth_token: authCode
+          })
+        }
+      );
+  
+      const data = await response.json();
+      setPages(data.data.accounts);
+      setOpenModal(true);
+  
+      // Automatically connect if only 1 account exists
+      if (data.data.accounts.length === 1) {
+        await handleConnect(data.data.accounts[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+    } finally {
+      setGettingPage(false);
+    }
+  };
+  
+  // Update handleConnect to use functional update
+  const handleConnect = async (account) => {
+    const token = localStorage.getItem("userToken");
+    try {
+      const response = await fetch("https://marketincer-7.onrender.com/api/v1/social_pages/connect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          auth_token: authCode
-        })
-      }
-      );
-
+          page: account
+        }),
+      });
+  
       const data = await response.json();
-      setPages(data.data.accounts); // Store the fetched accounts in the state
-      setOpenModal(true); // Open the modal once data is fetched
-     
+  
+      if (data.status) {
+        // Use functional update to ensure state consistency
+        setPages(prevPages => 
+          prevPages.map(pg =>
+            pg.page_id === account.page_id ? { ...pg, connected: true } : pg
+          )
+        );
+        openSuccessSB();
+      } else {
+        alert(`Failed to connect ${account.name}`);
+      }
     } catch (error) {
-      console.error("Error fetching accounts:", error);
-    } finally {
-      setGettingPage(false);
+      console.error("Error connecting account:", error);
+      alert("Failed to connect account.");
     }
   };
 
@@ -126,40 +167,7 @@ const Index = () => {
     }
   };
 
-  const handleConnect = async (account) => {
-    console.log(account);
-    const token = localStorage.getItem("userToken");
-    try {
-      // Call the connect API with the selected account's data
-      const response = await fetch("https://marketincer-7.onrender.com/api/v1/social_pages/connect", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          page: account
-        }),
-      });
-
-      const data = await response.json();
-      console.log("Connect API Response:", data);
-
-      if (data.status) {
-        const updatedPages = pages.map((pg) =>
-          pg.page_id === account.page_id ? { ...pg, connected: true } : pg
-        );
-  
-        setPages(updatedPages);
-        alert(`${account.name} connected successfully!`);
-      } else {
-        alert(`Failed to connect ${account.name}`);
-      }
-    } catch (error) {
-      console.error("Error connecting account:", error);
-      alert("Failed to connect account.");
-    }
-  };
+ 
   const socialMediaPlatforms = [
     { name: "Facebook", icon: <FacebookIcon fontSize="large" />, color: "#1877F2", onClick: () => setOpenInstaNoticeModal(true) },
     { name: "Instagram", icon: <InstagramIcon fontSize="large" />, color: "#E1306C", onClick: () => setOpenInstaNoticeModal(true) },
@@ -169,13 +177,27 @@ const Index = () => {
     { name: "Google", icon: <GoogleIcon fontSize="large" />, color: "#4285F4", onClick: () => { } },
     { name: "Telegram", icon: <TelegramIcon fontSize="large" />, color: "#0088cc", onClick: () => { } }
   ];
+
+
+  const renderSuccessSB = (
+      <MDSnackbar
+        color="success"
+        icon="check"
+        title="Account connected successfully!"
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={successSB}
+        onClose={closeSuccessSB}
+        close={closeSuccessSB}
+        bgWhite
+      />
+    );
   return (
     <Box>
       <DashboardLayout>
         <DashboardNavbar />
         <MDBox pt={6} pb={3} textAlign="center">
           <img src={onBoardImage} alt="Social Header" width={100} />
-          <MDTypography variant="h5" fontWeight="bold" textAlign="center" mt={2}>
+          <MDTypography variant="h5" fontWeight="bold" textAlign="center" mt={2} >
             Add your social accounts
           </MDTypography>
           <Typography variant="body2" color="text.secondary" mb={3}>
@@ -538,6 +560,7 @@ const Index = () => {
           </Box>
         </Box>
       </Modal>
+      {renderSuccessSB}
       {gettingPage && (
   <Box
     sx={{
