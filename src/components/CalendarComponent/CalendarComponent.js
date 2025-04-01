@@ -555,12 +555,21 @@ const CustomDateCell = ({ date }) => {
         </div>
     );
 };
-const CustomToolbar = ({ label, view, onNavigate, onView }) => {
+const CustomToolbar = ({ 
+    label, 
+    view, 
+    onNavigate, 
+    onView, 
+    onPostTypeChange,
+    searchQuery,
+    onSearchChange
+  }) => {
     const [currentView, setCurrentView] = React.useState(view);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+    const [localPostType, setLocalPostType] = useState('feed');
 
     const open = Boolean(anchorEl);
 
@@ -576,6 +585,11 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
         onView(view);
     };
 
+    const handlePostTypeChange = (event) => {
+        const newType = event.target.value;
+        setLocalPostType(newType);
+        onPostTypeChange(newType); // Propagate up to parent
+      };
     // Configure moment to start week on Monday (ISO standard)
     moment.updateLocale('en', {
         week: {
@@ -620,41 +634,42 @@ const CustomToolbar = ({ label, view, onNavigate, onView }) => {
                 gap: "5px",
             }}>
 
-
-
-                <MDInput
+            <MDInput
                     placeholder="Search Here"
                     size="small"
                     className="calendar-search"
-                    sx={{ padding: "6px", }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={{ padding: "6px" }}
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
                     InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                {searchTerm && (
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => setSearchTerm('')}
-                                        sx={{ p: 0.5, mr: -1 }}
-                                    >
-                                        <CloseIcon fontSize="small" />
-                                    </IconButton>
-                                )}
-                            </InputAdornment>
-                        ),
+                    endAdornment: (
+                        <InputAdornment position="end">
+                        {searchQuery && (
+                            <IconButton
+                            size="small"
+                            onClick={() => {
+                                onSearchChange('');
+                            }}
+                            sx={{ p: 0.5, mr: -1 }}
+                            >
+                            <CloseIcon fontSize="small" />
+                            </IconButton>
+                        )}
+                        </InputAdornment>
+                    ),
                     }}
                 />
 
                 <div className="view-switcher">
-                    <select
-                        className="feed-dropdown"
-
+                <select
+                    className="feed-dropdown"
+                    value={localPostType}
+                    onChange={handlePostTypeChange}
                     >
-                        <option value="feed">All Post</option>
-                        <option value="month">Scheduled</option>
-                        <option value="week">Draft</option>
-                        <option value="day">Published</option>
+                    <option value="feed">All Post</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
                     </select>
                 </div>
                 <div className="view-switcher">
@@ -791,9 +806,10 @@ const CalendarComponent = (props) => {
     const [error, setError] = useState(null);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [currentView, setCurrentView] = useState('month');
-
+    const [selectedPostType, setSelectedPostType] = useState('feed');
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const token = localStorage.getItem("userToken");
 
     const getDateRange = (date, view) => {
@@ -818,9 +834,26 @@ const CalendarComponent = (props) => {
 
         return { from, to };
     };
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedSearchQuery(searchQuery);
+      }, 500);
+    
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [searchQuery]);
 
     const fetchEvents = async () => {
-
+        const postTypeMap = {
+            'feed': null,
+            'scheduled': 'scheduled',
+            'draft': 'draft',
+            'published': 'published'
+          };
+          
         try {
             setLoading(true);
             const { from, to } = getDateRange(currentDate, currentView);
@@ -831,7 +864,9 @@ const CalendarComponent = (props) => {
                     params: {
                         from,
                         to,
-                        account_ids: props.selectedPages
+                        account_ids: props.selectedPages,
+                        postType: postTypeMap[selectedPostType],
+                        query: searchQuery
                     },
                     headers: {
                         Authorization: `Bearer ${token}`, // Attach the Bearer token
@@ -858,12 +893,8 @@ const CalendarComponent = (props) => {
 
 
     useEffect(() => {
-        console.log("myEventsList->>>>>>>",myEventsList);
-    }, [myEventsList]);
-
-    useEffect(() => {
         fetchEvents();
-    }, [currentView, currentDate, props.selectedPages]);
+      }, [currentView, currentDate, props.selectedPages, selectedPostType, searchQuery]); 
 
     const handleViewChange = (newView) => {
         setCurrentView(newView);
@@ -907,7 +938,14 @@ const CalendarComponent = (props) => {
                       day: {
                         event: EventCard // Add this for day view
                       },
-                    toolbar: (props) => <CustomToolbar {...props} />,
+                      toolbar: (props) => (
+                        <CustomToolbar 
+                          {...props} 
+                          onPostTypeChange={setSelectedPostType} 
+                          searchQuery={searchQuery}
+                          onSearchChange={setSearchQuery}
+                        />
+                      ),
                     event: EventCard
                 }}
                 dayLayoutAlgorithm="no-overlap"
@@ -915,7 +953,9 @@ const CalendarComponent = (props) => {
                 style={{
                     ...props.style,
                     overflow: 'visible',
-                    position: 'relative' // Add this
+                    position: 'relative', // Add this
+                    margin: "10px"
+
                   }}
                 eventPropGetter={(event) => ({
                     style: {
