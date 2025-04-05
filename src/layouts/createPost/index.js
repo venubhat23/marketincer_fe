@@ -231,7 +231,7 @@ const CreatePost = () => {
 
     try {
       const token = localStorage.getItem("userToken");
-      await axios.post("http://3.21.159.47/api/v1/posts/schedule", payloadData, {
+      await axios.post("https://marketincer-7.onrender.com/api/v1/posts/schedule", payloadData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -268,7 +268,7 @@ const CreatePost = () => {
 
     try {
       const token = localStorage.getItem("userToken");
-      await axios.post("http://3.21.159.47/api/v1/posts", payloadData, {
+      await axios.post("https://marketincer-7.onrender.com/api/v1/posts", payloadData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
