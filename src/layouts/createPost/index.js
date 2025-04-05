@@ -89,7 +89,7 @@ const CreatePost = () => {
       const token = localStorage.getItem("userToken"); // Retrieve token from local storage (or state)
 
       return axios.post(
-        "http://3.21.159.47/api/v1/posts",
+        "https://marketincer-7.onrender.com/api/v1/posts",
         payloadData,
         {
           headers: {
@@ -293,7 +293,7 @@ const CreatePost = () => {
     try {
       // Fetch the accounts from the dummy API
       const response = await fetch(
-        `http://3.21.159.47/api/v1/social_pages/connected_pages`, {
+        `https://marketincer-7.onrender.com/api/v1/social_pages/connected_pages`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

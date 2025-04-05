@@ -97,7 +97,7 @@ const Index = () => {
     const token = localStorage.getItem("userToken");
     try {
       const response = await fetch(
-        `http://3.21.159.47/api/v1/social_accounts/get_pages`, 
+        `https://marketincer-7.onrender.com/api/v1/social_accounts/get_pages`, 
         {
           method: "POST",
           headers: {
@@ -129,7 +129,7 @@ const Index = () => {
   const handleConnect = async (account) => {
     const token = localStorage.getItem("userToken");
     try {
-      const response = await fetch("http://3.21.159.47/api/v1/social_pages/connect", {
+      const response = await fetch("https://marketincer-7.onrender.com/api/v1/social_pages/connect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

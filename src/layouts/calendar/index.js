@@ -42,7 +42,7 @@ const index = () => {
     try {
       // Fetch the accounts from the dummy API
       const response = await fetch(
-        `http://3.21.159.47/api/v1/social_pages/connected_pages`, {
+        `https://marketincer-7.onrender.com/api/v1/social_pages/connected_pages`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
