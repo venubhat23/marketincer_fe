@@ -67,7 +67,7 @@ function Basic() {
   const mutation = useMutation({
     mutationFn: (userData) =>
       axios.post(
-        "https://marketincer-7.onrender.com/api/v1/login",
+        "https://api.marketincer.com/api/v1/login",
         userData
       ),
     onSuccess: (response) => {

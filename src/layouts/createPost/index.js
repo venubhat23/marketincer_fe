@@ -89,7 +89,7 @@ const CreatePost = () => {
       const token = localStorage.getItem("userToken"); // Retrieve token from local storage (or state)
 
       return axios.post(
-        "https://marketincer-7.onrender.com/api/v1/posts",
+        "https://api.marketincer.com/api/v1/posts",
         payloadData,
         {
           headers: {
@@ -231,7 +231,7 @@ const CreatePost = () => {
 
     try {
       const token = localStorage.getItem("userToken");
-      await axios.post("https://marketincer-7.onrender.com/api/v1/posts/schedule", payloadData, {
+      await axios.post("https://api.marketincer.com/api/v1/posts/schedule", payloadData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -268,7 +268,7 @@ const CreatePost = () => {
 
     try {
       const token = localStorage.getItem("userToken");
-      await axios.post("https://marketincer-7.onrender.com/api/v1/posts", payloadData, {
+      await axios.post("https://api.marketincer.com/api/v1/posts", payloadData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -293,7 +293,7 @@ const CreatePost = () => {
     try {
       // Fetch the accounts from the dummy API
       const response = await fetch(
-        `https://marketincer-7.onrender.com/api/v1/social_pages/connected_pages`, {
+        `https://api.marketincer.com/api/v1/social_pages/connected_pages`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
