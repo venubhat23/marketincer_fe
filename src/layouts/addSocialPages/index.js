@@ -11,7 +11,7 @@ import PinterestIcon from '@mui/icons-material/Pinterest';
 import { Twitter } from "@mui/icons-material";
 import MDButton from "@/components/MDButton";
 import CloseIcon from '@mui/icons-material/Close';
-import onBoardImage from "/on-board-social-accounts.jpeg";
+import onBoardImage from "@/assets/images/on-board-social-accounts.jpeg";
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import GoogleIcon from '@mui/icons-material/Google';
 import TelegramIcon from '@mui/icons-material/Telegram';
