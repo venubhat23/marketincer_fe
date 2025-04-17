@@ -30,6 +30,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_green.css";
+import useDebounce from './useDebounce';
 
 const localizer = momentLocalizer(moment);
 
@@ -140,6 +141,9 @@ const EventModal = ({ event, open, onClose }) => {
     const [brandName, setBrandName] = useState("");
     const fileInputRef = useRef(null);
     const [uploadedFileName, setUploadedFileName] = useState("");
+    const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
+    const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+    const [createPostMode, setCreatePostMode] = useState("");
     useEffect(() => {
         setPostContent(event?.comments);
         setUploadedImageUrl(event?.s3_url);
@@ -148,14 +152,56 @@ const EventModal = ({ event, open, onClose }) => {
     }, [event]);
     if (!event) return null;
 
+    const draftModelOpen = async (action) => {
+
+        setCreatePostMode(action);
+        setOpenDateTimePicker(true);
+
+    };
+
+
+    const draftHandler = async () => {
+        setPosting(true);
+        const payloadData = {
+            social_page_id: event.page_data.social_id,   // Only sending the first selected page for now
+            post: {
+                s3_url: event.s3_url,
+                hashtags: "",  // Static hashtags
+                note: event.comments,
+                comments: event.comments, // Use the postContent for comments as well
+                brand_name: event.brand_name,
+                status: createPostMode,
+                scheduled_at: selectedDateTime
+            },
+        };
+
+        try {
+            const token = localStorage.getItem("userToken");
+            await axios.post("https://api.marketincer.com/api/v1/posts/schedule", payloadData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+            alert(`Post ${createPostMode} successfully!`);
+
+            setPosting(false);
+            setOpenDateTimePicker(false);
+            closeHandler();
+        } catch (error) {
+            console.error(`Error ${createPostMode}  post:`, error);
+            alert(`Failed to ${createPostMode} post`);
+        }
+    };
+
     const handlePublish = async (status = "publish") => {
 
         setPosting(true);
+       
         const payloadData = {
             social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
             post: {
                 s3_url: event.s3_url,
-                hashtags: "#sports #fitness",  // Static hashtags
+                hashtags: "",  // Static hashtags
                 note: event.comments,
                 comments: event.comments, // Use the postContent for comments as well
                 brand_name: event.brand_name,
@@ -172,7 +218,7 @@ const EventModal = ({ event, open, onClose }) => {
             });
             alert("Post published successfully!");
             // Optionally, clear form states
-
+            closeHandler();
             setPosting(false);
         } catch (error) {
             console.error("Error publishing post:", error);
@@ -180,6 +226,74 @@ const EventModal = ({ event, open, onClose }) => {
         }
     };
 
+    const handleUpdate = async () => {
+        // if (!event?.post_id) {
+        //   alert("No post ID found for update.");
+        //   return;
+        // }
+      
+        if (!uploadedImageUrl || !postContent) {
+          alert("Please make sure all fields are filled out!");
+          return;
+        }
+      
+        setPosting(true);
+        const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
+        const payloadData = {
+          social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
+          post: {
+            s3_url: uploadedImageUrl,
+            hashtags: "",
+            note: stripHtmlTags(postContent),        // ✅ Apply to postContent
+            comments: stripHtmlTags(postContent),  
+            brand_name: brandName,
+            status: event.status || "draft", // Keep current status if available
+          },
+        };
+      
+        try {
+          const token = localStorage.getItem("userToken");
+          await axios.patch(`https://api.marketincer.com/api/v1/posts/${event.post_id}`, payloadData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          });
+      
+          alert("Post updated successfully!");
+          setPosting(false);
+          setIsEdit(false); // Exit edit mode
+        } catch (error) {
+          console.error("Error updating post:", error);
+          alert("Failed to update post");
+        }
+      };
+
+    const handleDelete = async () => {
+        if (!event?.post_id) {
+          alert("No post ID found for deletion.");
+          return;
+        }
+      
+        const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+        if (!confirmDelete) return;
+      
+        try {
+          const token = localStorage.getItem("userToken");
+          await axios.delete(`https://api.marketincer.com/api/v1/posts/${event.post_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          });
+      
+          alert("Post deleted successfully!");
+          // Optionally reset UI
+          setSelectedEvent(null);
+          setModalOpen(false);
+        } catch (error) {
+          console.error("Error deleting post:", error);
+          alert("Failed to delete post");
+        }
+      };
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -244,302 +358,392 @@ const EventModal = ({ event, open, onClose }) => {
     const handleBoxClick = () => {
         fileInputRef.current.click(); // ✅ Triggers the hidden file input
     };
+  
+    const closeHandler = () => {
+        onClose();
+        setIsEdit(false);
+    }
 
     return (
-        <Modal
-            open={open}
-            onClose={onClose}
-            aria-labelledby="event-modal-title"
-        >
-            <Box sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 700,
-                bgcolor: 'background.paper',
-                boxShadow: 24,
-                p: 3,
-                borderRadius: 2,
-                outline: 'none'
-            }}>
-                <IconButton
-                    aria-label="close"
-                    onClick={onClose}
-                    sx={{
-                        position: 'absolute',
-                        right: 16,
-                        top: 16,
-                        color: 'text.secondary'
-                    }}
-                >
-                    <CloseIcon />
-                </IconButton>
+        <>
+            <Modal
+                open={open}
+                onClose={closeHandler}
+                aria-labelledby="event-modal-title"
+            >
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 700,
+                    bgcolor: 'background.paper',
+                    boxShadow: 24,
+                    p: 3,
+                    borderRadius: 2,
+                    outline: 'none'
+                }}>
+                    <IconButton
+                        aria-label="close"
+                        onClick={closeHandler}
+                        sx={{
+                            position: 'absolute',
+                            right: 16,
+                            top: 16,
+                            color: 'text.secondary'
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
 
-                <div>
-                    <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", marginRight: "40px", }}>
-                        <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-                            <Avatar sx={{ marginRight: "10px" }} src={event.page_data?.page_info?.picture?.data?.url}></Avatar>
-                            <Box>
-                                <Typography variant="body1" sx={{ fontSize: "14px", fontWeight: "700" }}>{event.page_data?.name}</Typography>
-                                <Typography variant="body2" color="textSecondary" sx={{ fontSize: "14px" }}>
-                                    {event.page_data?.username}
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            marginBottom: '24px'
-                        }}>
-                            <span className="model-time" style={{ colr: "#cdcdcd" }}>
-                                <CalendarMonthIcon style={{ marginRight: "3px" }} />{moment(event.start).format('ddd, D MMM [at] HH:mm')}
-                            </span>
-                        </div>
-                    </Box>
-                    {isEdit ? (<>
-                        <Box sx={{ width: "100%" }}>
-                            <Box sx={{ width: "100%", position: "relative", marginBottom: "10px" }}>
-                                <MyEditor value={postContent} onChange={setPostContent} />
-
-                                <Box
-                                    display="flex"
-                                    sx={{
-                                        marginBottom: "0px",
-                                        position: "absolute",
-                                        bottom: "-9px",
-                                        gap: "0px"
-                                    }}
-                                >
-                                    <MDButton
-                                        variant="outlined"
-                                        size="small"
-                                        sx={{
-                                            margin: "0.09375rem 1rem",
-                                            mb: 2,
-                                            borderRadius: "50px", // ✅ Fully rounded border
-                                            borderColor: "#B0B0B0", // ✅ Gray border
-                                            color: "#757575", // ✅ Gray text
-                                            backgroundColor: "#F0F0F0", // ✅ Light gray background
-                                            "&:hover": {
-                                                backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
-                                            },
-                                        }}
-                                        onClick={() => { }}
-                                        to="/social"
-                                    >
-                                        # Hashtag
-                                    </MDButton>
-                                    <MDButton
-                                        variant="outlined"
-                                        size="small"
-                                        sx={{
-                                            margin: "0.09375rem 0rem",
-                                            mb: 2,
-                                            borderRadius: "50px", // ✅ Fully rounded border
-                                            borderColor: "#B0B0B0", // ✅ Gray border
-                                            color: "#757575", // ✅ Gray text
-                                            backgroundColor: "#F0F0F0", // ✅ Light gray background
-                                            "&:hover": {
-                                                backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
-                                            },
-                                        }}
-                                        onClick={() => { }}
-                                        to="/social"
-                                    >
-                                        * AI Assist
-                                    </MDButton>
-
+                    <div>
+                        <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", marginRight: "40px", }}>
+                            <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+                                <Avatar sx={{ marginRight: "10px" }} src={event.page_data?.page_info?.picture?.data?.url}></Avatar>
+                                <Box>
+                                    <Typography variant="body1" sx={{ fontSize: "14px", fontWeight: "700" }}>{event.page_data?.name}</Typography>
+                                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: "14px" }}>
+                                        {event.page_data?.username}
+                                    </Typography>
                                 </Box>
                             </Box>
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Brand</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    label="Brand"
-                                    sx={{
-                                        width: "-webkit-fill-available",
-                                        height: "50px",
-                                        margin: "0px",
-                                        marginTop: "10px"
-                                    }}
-                                    value={brandName}
-                                    onChange={(e) => setBrandName(e.target.value)}
-                                >
-                                    <MenuItem value={"d-mart"}>D-Mart</MenuItem>
-                                    <MenuItem value={"v-mart"}>V-Mart</MenuItem>
-                                    <MenuItem value={"blinkit"}>Blinkit</MenuItem>
-                                </Select>
-                            </FormControl>
-
-                            {/* File Upload Section */}
-                            <Box
-                                display="flex"
-                                justifyContent="center"
-                                alignItems="center"
-                                flexDirection="column"
-                                sx={{
-                                    width: "100%",
-                                    padding: "16px",
-                                    border: "1px dashed #ccc",
-                                    borderRadius: "8px",
-                                    backgroundColor: "#f9f9f9",
-                                    textAlign: "center",
-                                    cursor: "pointer",
-                                    my: 2,
-                                    margin: "10px",
-                                    marginLeft: "0px",
-                                }}
-                                onClick={handleBoxClick}
-                                onDrop={handleDrop} // ✅ Handles dropped files
-                                onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
-                            >
-                                <Typography variant="body1" sx={{ color: "#666" }}>
-                                    Click or Drag & Drop media
-                                </Typography>
-
-                                {uploadedFileName && (
-                                    <Typography variant="body2" sx={{ color: "#444", mt: 1 }}>
-                                        Selected File: {uploadedFileName}
-                                    </Typography>
-                                )}
-
-                                {uploading && <Typography variant="body2">Uploading...</Typography>}
-                            </Box>
-
-                            {/* Hidden File Input */}
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                style={{ display: "none" }}
-                            />
-
-                        </Box>
-                    </>) : (<>
-                        <p style={{
-                            fontSize: '14px',
-                            color: '#444',
-                            marginBottom: '10px',
-                            lineHeight: '1.5'
-                        }}>
-                            <span dangerouslySetInnerHTML={{ __html: event.comments }} />
-                        </p>
-                        <div className="model-event-image-container">
-                            <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
-                        </div>
-
-                        <Typography
-                            variant="body1"
-                            sx={{
-                                fontSize: "14px",
-                                color: "#000000",
-                            }}
-                        >Link in Bio<ErrorOutlineIcon
-                                sx={{ width: 29, height: 29, paddingTop: "15px", border: "none" }}
-                            />
-                        </Typography>
-                        <Typography
-                            variant="body2"
-
-                            sx={{
-                                fontSize: "14px",
-                                color: "#545454",
-                                marginBottom: "10px"
-                            }}
-                        >
-                            click <a href='#' sx={{
-                                color: "#4e4e4e",
-                            }}>here</a> to update your Link in Bio Settings
-                        </Typography>
-
-
-                        <div
-                            style={{
+                            <div style={{
                                 display: 'flex',
-                                justifyContent: 'space-between',
                                 alignItems: 'center',
-                                borderTop: '1px solid #f0f0f0',
-                                paddingTop: '16px',
-                            }}
-                        >
-                            {/* Left side: 4 icons separated by | */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', color: '#9e9e9e' }}>
-                                <FmdGoodIcon style={{ color: '#9e9e9e' }} />
-                                <span>|</span>
-                                <ForumIcon style={{ color: '#9e9e9e' }} />
-                                <span>|</span>
-                                <ShareIcon style={{ color: '#9e9e9e' }} />
-                                <span>|</span>
-                                <RemoveRedEyeIcon style={{ color: '#9e9e9e' }} />
+                                gap: '8px',
+                                marginBottom: '24px'
+                            }}>
+                                <span className="model-time" style={{ colr: "#cdcdcd" }}>
+                                    <CalendarMonthIcon style={{ marginRight: "3px" }} />{moment(event.start).format('ddd, D MMM [at] HH:mm')}
+                                </span>
+                            </div>
+                        </Box>
+                        {isEdit ? (<>
+                            <Box sx={{ width: "100%" }}>
+                                <Box sx={{ width: "100%", position: "relative", marginBottom: "10px" }}>
+                                    <MyEditor value={postContent} onChange={setPostContent} />
+
+                                    <Box
+                                        display="flex"
+                                        sx={{
+                                            marginBottom: "0px",
+                                            position: "absolute",
+                                            bottom: "-9px",
+                                            gap: "0px"
+                                        }}
+                                    >
+                                        <MDButton
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{
+                                                margin: "0.09375rem 1rem",
+                                                mb: 2,
+                                                borderRadius: "50px", // ✅ Fully rounded border
+                                                borderColor: "#B0B0B0", // ✅ Gray border
+                                                color: "#757575", // ✅ Gray text
+                                                backgroundColor: "#F0F0F0", // ✅ Light gray background
+                                                "&:hover": {
+                                                    backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
+                                                },
+                                            }}
+                                            onClick={() => { }}
+                                            to="/social"
+                                        >
+                                            # Hashtag
+                                        </MDButton>
+                                        <MDButton
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{
+                                                margin: "0.09375rem 0rem",
+                                                mb: 2,
+                                                borderRadius: "50px", // ✅ Fully rounded border
+                                                borderColor: "#B0B0B0", // ✅ Gray border
+                                                color: "#757575", // ✅ Gray text
+                                                backgroundColor: "#F0F0F0", // ✅ Light gray background
+                                                "&:hover": {
+                                                    backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
+                                                },
+                                            }}
+                                            onClick={() => { }}
+                                            to="/social"
+                                        >
+                                            * AI Assist
+                                        </MDButton>
+
+                                    </Box>
+                                </Box>
+                                <FormControl fullWidth>
+                                    <InputLabel id="demo-simple-select-label">Brand</InputLabel>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        label="Brand"
+                                        sx={{
+                                            width: "-webkit-fill-available",
+                                            height: "50px",
+                                            margin: "0px",
+                                            marginTop: "10px"
+                                        }}
+                                        value={brandName}
+                                        onChange={(e) => setBrandName(e.target.value)}
+                                    >
+                                        <MenuItem value={"d-mart"}>D-Mart</MenuItem>
+                                        <MenuItem value={"v-mart"}>V-Mart</MenuItem>
+                                        <MenuItem value={"blinkit"}>Blinkit</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+                                {/* File Upload Section */}
+                                <Box
+                                    display="flex"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    flexDirection="column"
+                                    sx={{
+                                        width: "100%",
+                                        padding: "16px",
+                                        border: "1px dashed #ccc",
+                                        borderRadius: "8px",
+                                        backgroundColor: "#f9f9f9",
+                                        textAlign: "center",
+                                        cursor: "pointer",
+                                        my: 2,
+                                        margin: "10px",
+                                        marginLeft: "0px",
+                                    }}
+                                    onClick={handleBoxClick}
+                                    onDrop={handleDrop} // ✅ Handles dropped files
+                                    onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
+                                >
+                                    <Typography variant="body1" sx={{ color: "#666" }}>
+                                        Click or Drag & Drop media
+                                    </Typography>
+
+                                    {uploadedFileName && (
+                                        <Typography variant="body2" sx={{
+                                            color: "#444", mt: 1, whiteSpace: "nowrap", // ✅ Ensures text does not wrap
+                                            overflow: "hidden", // ✅ Hides overflow text
+                                            textOverflow: "ellipsis", maxWidth: "400px",
+                                        }}>
+                                            Selected File: {uploadedFileName}
+                                        </Typography>
+                                    )}
+
+                                    {uploading && <Typography variant="body2">Uploading...</Typography>}
+                                </Box>
+
+                                {/* Hidden File Input */}
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    style={{ display: "none" }}
+                                />
+                                <MDButton
+                                    variant="gradient"
+                                    size="small"
+                                    sx={{
+                                        height: "10px",
+                                        backgroundColor: "#01cbc6 !important",
+                                        color: "white !important",
+                                        "&:hover": {
+                                            backgroundColor: "#00b3ad !important",
+                                        },
+                                    }}
+                                    onClick={() => handleUpdate()}
+                                    disabled={posting}
+                                >
+                                    Update
+                                </MDButton>
+                            </Box>
+                        </>) : (<>
+                            <p style={{
+                                fontSize: '14px',
+                                color: '#444',
+                                marginBottom: '10px',
+                                lineHeight: '1.5'
+                            }}>
+                                <span dangerouslySetInnerHTML={{ __html: event.comments }} />
+                            </p>
+                            <div className="model-event-image-container">
+                                <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
                             </div>
 
-                            {/* Right side: Buttons */}
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    fontSize: "14px",
+                                    color: "#000000",
+                                }}
+                            >Link in Bio<ErrorOutlineIcon
+                                    sx={{ width: 29, height: 29, paddingTop: "15px", border: "none" }}
+                                />
+                            </Typography>
+                            <Typography
+                                variant="body2"
+
+                                sx={{
+                                    fontSize: "14px",
+                                    color: "#545454",
+                                    marginBottom: "10px"
+                                }}
+                            >
+                                click <a href='#' sx={{
+                                    color: "#4e4e4e",
+                                }}>here</a> to update your Link in Bio Settings
+                            </Typography>
+
+
                             <div
                                 style={{
                                     display: 'flex',
-                                    justifyContent: 'flex-end',
-                                    gap: '8px',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    borderTop: '1px solid #f0f0f0',
+                                    paddingTop: '16px',
                                 }}
                             >
-                                <Button
-                                    variant="link"
-                                    sx={{ height: "10px", color: "red", marginTop: "12px" }}
-                                >
-                                    Delete
-                                </Button>
+                                {/* Left side: 4 icons separated by | */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', color: '#9e9e9e' }}>
+                                    <FmdGoodIcon style={{ color: '#9e9e9e' }} />
+                                    <span>|</span>
+                                    <ForumIcon style={{ color: '#9e9e9e' }} />
+                                    <span>|</span>
+                                    <ShareIcon style={{ color: '#9e9e9e' }} />
+                                    <span>|</span>
+                                    <RemoveRedEyeIcon style={{ color: '#9e9e9e' }} />
+                                </div>
 
-                                <MDButton
-                                    variant="outlined"
-                                    color="info"
-                                    size="small"
-                                    sx={{ height: "10px" }}
-                                    onClick={() => setIsEdit(true)}
-                                >
-                                    Edit
-                                </MDButton>
-
-                                <MDButton
-                                    variant="gradient"
-                                    size="small"
-                                    sx={{
-                                        height: "10px",
-                                        backgroundColor: "#01cbc6 !important",
-                                        color: "white !important",
-                                        "&:hover": {
-                                            backgroundColor: "#00b3ad !important",
-                                        },
+                                {/* Right side: Buttons */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        gap: '8px',
                                     }}
-                                    onClick={() => handlePublish("publish")}
-                                    disabled={posting}
                                 >
-                                    Publish
-                                </MDButton>
+                                    <Button
+                                        variant="link"
+                                        sx={{ height: "10px", color: "red", marginTop: "12px" }}
+                                        onClick={() => handleDelete()}
+                                    >
+                                        Delete
+                                    </Button>
 
-                                <MDButton
-                                    variant="gradient"
-                                    size="small"
-                                    sx={{
-                                        height: "10px",
-                                        backgroundColor: "#01cbc6 !important",
-                                        color: "white !important",
-                                        "&:hover": {
-                                            backgroundColor: "#00b3ad !important",
-                                        },
-                                    }}
-                                    onClick={() => handlePublish("shedule")}
-                                    disabled={posting}
-                                >
-                                    Schedule
-                                </MDButton>
+                                    <MDButton
+                                        variant="outlined"
+                                        color="info"
+                                        size="small"
+                                        sx={{ height: "10px" }}
+                                        onClick={() => setIsEdit(true)}
+                                    >
+                                        Edit
+                                    </MDButton>
+
+                                    <MDButton
+                                        variant="gradient"
+                                        size="small"
+                                        sx={{
+                                            height: "10px",
+                                            backgroundColor: "#01cbc6 !important",
+                                            color: "white !important",
+                                            "&:hover": {
+                                                backgroundColor: "#00b3ad !important",
+                                            },
+                                        }}
+                                        onClick={() => handlePublish("publish")}
+                                        disabled={posting}
+                                    >
+                                        { event?.status === 'scheduled' ? 'Publish Now' : 'Publish'}
+                                    </MDButton>
+
+                                    <MDButton
+                                        variant="gradient"
+                                        size="small"
+                                        sx={{
+                                            height: "10px",
+                                            backgroundColor: "#01cbc6 !important",
+                                            color: "white !important",
+                                            "&:hover": {
+                                                backgroundColor: "#00b3ad !important",
+                                            },
+                                        }}
+                                        onClick={() => draftModelOpen("schedule")}
+                                        disabled={posting}
+                                    >
+                                        { event?.status === 'scheduled' ? 'Reschedule' : 'Schedule'} 
+                                    </MDButton>
+                                </div>
                             </div>
-                        </div>
-                    </>)}
-                </div>
-            </Box>
-        </Modal>
+                        </>)}
+                    </div>
+                </Box>
+            </Modal>
+            <Modal
+                open={openDateTimePicker}
+                onClose={() => setOpenDateTimePicker(false)}
+                aria-labelledby="modal-title"
+                aria-describedby="modal-description"
+            >
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 400,
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: "10px",
+                    }}
+                >
+                    <h6 >Select a predefined timeslot</h6>
+                    <Flatpickr
+                        options={{
+                            inline: true,
+                            enableTime: true,
+                            dateFormat: "Y-m-d H:i",
+                        }}
+                        value={selectedDateTime}
+                        onChange={([date]) => setSelectedDateTime(date)}
+                    />
+
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: "20px" }}>
+                        <MDButton variant="outlined"
+                            sx={{
+                                margin: "0.09375rem 1px",
+                                mb: 2,
+                                border: "1px solid #01cbc6",
+                                backgroundColor: "transprant !important", // Ensures background color applies
+                                color: "#01cbc6 !important", // ✅ Forces white text
+                                "&:hover": {
+                                    border: "1px solid #00b3ad",
+                                    backgroundColor: "#transprant !important", // Slightly darker on hover
+                                },
+                            }}
+                            onClick={() => setOpenModal(false)}>
+                            Cancel
+                        </MDButton>
+                        <MDButton variant="gradient"
+                            onClick={draftHandler}
+                            sx={{
+                                margin: "0.09375rem 1px",
+                                mb: 2,
+                                backgroundColor: "#01cbc6 !important", // Ensures background color applies
+                                color: "white !important", // ✅ Forces white text
+                                "&:hover": {
+                                    backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                                },
+                            }}>
+                            Save
+                        </MDButton>
+                    </Box>
+                </Box>
+            </Modal>
+        </>
+
     );
 };
 
@@ -555,15 +759,15 @@ const CustomDateCell = ({ date }) => {
         </div>
     );
 };
-const CustomToolbar = ({ 
-    label, 
-    view, 
-    onNavigate, 
-    onView, 
+const CustomToolbar = ({
+    label,
+    view,
+    onNavigate,
+    onView,
     onPostTypeChange,
     searchQuery,
     onSearchChange
-  }) => {
+}) => {
     const [currentView, setCurrentView] = React.useState(view);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
@@ -589,7 +793,7 @@ const CustomToolbar = ({
         const newType = event.target.value;
         setLocalPostType(newType);
         onPostTypeChange(newType); // Propagate up to parent
-      };
+    };
     // Configure moment to start week on Monday (ISO standard)
     moment.updateLocale('en', {
         week: {
@@ -634,42 +838,45 @@ const CustomToolbar = ({
                 gap: "5px",
             }}>
 
-            <MDInput
+                <MDInput
                     placeholder="Search Here"
                     size="small"
                     className="calendar-search"
                     sx={{ padding: "6px" }}
                     value={searchQuery}
-                    onChange={(e) => onSearchChange(e.target.value)}
+                    onChange={(e) => {
+                        console.log('Typing:', e.target.value);
+                        onSearchChange(e.target.value);
+                    }}
                     InputProps={{
-                    endAdornment: (
-                        <InputAdornment position="end">
-                        {searchQuery && (
-                            <IconButton
-                            size="small"
-                            onClick={() => {
-                                onSearchChange('');
-                            }}
-                            sx={{ p: 0.5, mr: -1 }}
-                            >
-                            <CloseIcon fontSize="small" />
-                            </IconButton>
-                        )}
-                        </InputAdornment>
-                    ),
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                {searchQuery && (
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => {
+                                            onSearchChange('');
+                                        }}
+                                        sx={{ p: 0.5, mr: -1 }}
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                )}
+                            </InputAdornment>
+                        ),
                     }}
                 />
 
                 <div className="view-switcher">
-                <select
-                    className="feed-dropdown"
-                    value={localPostType}
-                    onChange={handlePostTypeChange}
+                    <select
+                        className="feed-dropdown"
+                        value={localPostType}
+                        onChange={handlePostTypeChange}
                     >
-                    <option value="feed">All Post</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
+                        <option value="feed">All Post</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
                     </select>
                 </div>
                 <div className="view-switcher">
@@ -707,7 +914,9 @@ const CustomToolbar = ({
                 >
                     <MenuItem
                         onClick={() => {
-
+                            onSearchChange('');
+                            setLocalPostType('');
+                            onPostTypeChange('');
                         }}
                     >
                         <RestoreIcon sx={{ width: 20, height: 20, marginRight: "15px" }} />{" "}
@@ -810,6 +1019,7 @@ const CalendarComponent = (props) => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const token = localStorage.getItem("userToken");
 
     const getDateRange = (date, view) => {
@@ -834,26 +1044,18 @@ const CalendarComponent = (props) => {
 
         return { from, to };
     };
-    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
-    useEffect(() => {
-      const handler = setTimeout(() => {
-        setDebouncedSearchQuery(searchQuery);
-      }, 500);
-    
-      return () => {
-        clearTimeout(handler);
-      };
-    }, [searchQuery]);
+
 
     const fetchEvents = async () => {
+        console.log('🔥 API called with:', debouncedSearchQuery);
         const postTypeMap = {
             'feed': null,
             'scheduled': 'scheduled',
             'draft': 'draft',
             'published': 'published'
-          };
-          
+        };
+
         try {
             setLoading(true);
             const { from, to } = getDateRange(currentDate, currentView);
@@ -866,7 +1068,7 @@ const CalendarComponent = (props) => {
                         to,
                         account_ids: props.selectedPages,
                         postType: postTypeMap[selectedPostType],
-                        query: searchQuery
+                        query: debouncedSearchQuery
                     },
                     headers: {
                         Authorization: `Bearer ${token}`, // Attach the Bearer token
@@ -891,10 +1093,12 @@ const CalendarComponent = (props) => {
         }
     };
 
-
     useEffect(() => {
+
+        console.log("🔥 Fetching with:", debouncedSearchQuery);
         fetchEvents();
-      }, [currentView, currentDate, props.selectedPages, selectedPostType, searchQuery]); 
+
+    }, [debouncedSearchQuery, currentView, currentDate, props.selectedPages, selectedPostType]);
 
     const handleViewChange = (newView) => {
         setCurrentView(newView);
@@ -922,11 +1126,12 @@ const CalendarComponent = (props) => {
                 onNavigate={handleNavigate}
                 date={currentDate}
                 view={currentView}
+                
                 min={new Date(2025, 0, 1, 0, 0)} // Start of day
                 max={new Date(2025, 11, 31, 23, 59)} // End of day
                 step={60} // 60-minute intervals
                 timeslots={1} // Single column per hour
-              
+
                 components={{
                     month: {
                         dateHeader: CustomDateCell,
@@ -934,18 +1139,18 @@ const CalendarComponent = (props) => {
                     },
                     week: {
                         event: EventCard // Add this for week view
-                      },
-                      day: {
+                    },
+                    day: {
                         event: EventCard // Add this for day view
-                      },
-                      toolbar: (props) => (
-                        <CustomToolbar 
-                          {...props} 
-                          onPostTypeChange={setSelectedPostType} 
-                          searchQuery={searchQuery}
-                          onSearchChange={setSearchQuery}
+                    },
+                    toolbar: (props) => (
+                        <CustomToolbar
+                            {...props}
+                            onPostTypeChange={setSelectedPostType}
+                            searchQuery={searchQuery}            // <-- still pass normal one for typing
+                            onSearchChange={setSearchQuery}
                         />
-                      ),
+                    ),
                     event: EventCard
                 }}
                 dayLayoutAlgorithm="no-overlap"
@@ -956,15 +1161,15 @@ const CalendarComponent = (props) => {
                     position: 'relative', // Add this
                     margin: "10px"
 
-                  }}
+                }}
                 eventPropGetter={(event) => ({
                     style: {
-                      display: 'block', // Force block layout
-                      position: 'static', // Override absolute positioning
-                      height: 'auto', // Allow natural height
-                      overflow: 'visible' // Show overflow content
+                        display: 'block', // Force block layout
+                        position: 'static', // Override absolute positioning
+                        height: 'auto', // Allow natural height
+                        overflow: 'visible' // Show overflow content
                     }
-                  })}
+                })}
             />
             <EventModal
                 event={selectedEvent}

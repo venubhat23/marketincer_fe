@@ -167,15 +167,20 @@ const index = () => {
                 </Box>
                 {/* Bottom Section with Add Button */}
                 <Box sx={{ bottom: "15px", width: "100%" }}>
-                  <Divider />
+                <Divider />
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
                       gap: "1rem",
+                      position: "absolute",
+                      bottom: "60px",
+                      left: "48px"
+                    
                     }}
                   >
+                    
                     <MDButton
                       variant="outlined"
                       color="info"

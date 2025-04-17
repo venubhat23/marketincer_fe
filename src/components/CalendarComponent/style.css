@@ -179,6 +179,7 @@
   .rbc-time-view .rbc-timeslot-group {
     min-height: 80px;
     min-width: 136px;
+    display: none;
   }
   .rbc-time-view .rbc-timeslot-group .rbc-label {
     font-size: 14px;
@@ -496,4 +497,8 @@
    
     min-height: 60px;
     z-index: 1; /* Ensure cards stay above grid */
+  }
+
+  .rbc-event-label {
+    display: none;
   }
