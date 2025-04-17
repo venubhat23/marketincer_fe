@@ -201,7 +201,7 @@ const CreatePost = () => {
     );
   };
   const draftModelOpen= async (action) => {
-    if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
+    if (!selectedPages.length || !uploadedImageUrl || !postContent) {
       alert("Please make sure all fields are filled out!");
       return;
     }
@@ -211,18 +211,19 @@ const CreatePost = () => {
   };
   const draftHandler = async () => {
    
-    if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
+    if (!selectedPages.length || !uploadedImageUrl || !postContent) {
       alert("Please make sure all fields are filled out!");
       return;
     }
     setPosting(true);
+    const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
     const payloadData = {
       social_page_id: selectedPages[0],  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
         hashtags: "#sports #fitness",  // Static hashtags
-        note: postContent,
-        comments: postContent, // Use the postContent for comments as well
+        note: stripHtmlTags(postContent),        // ✅ Apply to postContent
+        comments: stripHtmlTags(postContent),  // Use the postContent for comments as well
         brand_name: brandName,
         status: createPostMode,
         scheduled_at: selectedDateTime
@@ -243,24 +244,26 @@ const CreatePost = () => {
       setUploadedImageUrl("");
       setPosting(false);
       setOpenDateTimePicker(false);
+      setUploadedFileName('');
     } catch (error) {
       console.error(`Error ${createPostMode}  post:`, error);
       alert(`Failed to ${createPostMode} post`);
     }
   };
   const handlePublish = async () => {
-    if (!selectedPages.length || !uploadedImageUrl || !postContent || !brandName) {
+    if (!selectedPages.length || !uploadedImageUrl || !postContent) {
       alert("Please make sure all fields are filled out!");
       return;
     }
     setPosting(true);
+    const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
     const payloadData = {
       social_page_id: selectedPages[0],  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
         hashtags: "#sports #fitness",  // Static hashtags
-        note: postContent,
-        comments: postContent, // Use the postContent for comments as well
+        note: stripHtmlTags(postContent),        // ✅ Apply to postContent
+        comments: stripHtmlTags(postContent),  
         brand_name: brandName,
         status: "publish"
       },
@@ -279,6 +282,7 @@ const CreatePost = () => {
       setPostContent("");
       setUploadedImageUrl("");
       setPosting(false);
+      setUploadedFileName('');
     } catch (error) {
       console.error("Error publishing post:", error);
       alert("Failed to publish post");
@@ -773,7 +777,7 @@ const CreatePost = () => {
         <Card sx={{ m: 2, padding: "0px", border: "1px solid #e5e6eb" }}>
           <CardHeader
             avatar={
-              !selectedPages.length || !uploadedImageUrl || !postContent || !brandName ? (
+              !selectedPages.length || !uploadedImageUrl || !postContent ? (
                 <Skeleton animation="wave" variant="circular" width={40} height={40} />
               ) : (
                 <Avatar src={
@@ -784,7 +788,7 @@ const CreatePost = () => {
             }
             action={null}
             title={
-              !selectedPages.length || !uploadedImageUrl || !postContent || !brandName ? (
+              !selectedPages.length || !uploadedImageUrl || !postContent ? (
                 <Skeleton
                   animation={false}
                   height={10}
@@ -796,7 +800,7 @@ const CreatePost = () => {
               )
             }
             subheader={
-              !selectedPages.length || !uploadedImageUrl || !postContent || !brandName ? (
+              !selectedPages.length || !uploadedImageUrl || !postContent ? (
                 <Skeleton animation={false} height={10} width="40%" />
               ) : (
                 <Typography variant="body2" color="text.secondary">
@@ -805,7 +809,7 @@ const CreatePost = () => {
               )
             }
           />
-          {!selectedPages.length || !uploadedImageUrl || !postContent || !brandName ? (
+          {!selectedPages.length || !uploadedImageUrl || !postContent ? (
             <Skeleton sx={{ height: 190 }} animation={false} variant="rectangular" />
           ) : (
             <CardMedia
@@ -817,7 +821,7 @@ const CreatePost = () => {
           )}
 
           <CardContent>
-            {!selectedPages.length || !uploadedImageUrl || !postContent || !brandName ? (
+            {!selectedPages.length || !uploadedImageUrl || !postContent ? (
               <>
                 <Skeleton animation={false} height={10} style={{ marginBottom: 6 }} />
                 <Skeleton animation={false} height={10} width="80%" />

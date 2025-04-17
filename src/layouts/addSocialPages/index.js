@@ -11,7 +11,7 @@ import PinterestIcon from '@mui/icons-material/Pinterest';
 import { Twitter } from "@mui/icons-material";
 import MDButton from "@/components/MDButton";
 import CloseIcon from '@mui/icons-material/Close';
-import onBoardImage from "/on-board-social-accounts.jpeg";
+import onBoardImage from "@/assets/images/on-board-social-accounts.jpeg";
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import GoogleIcon from '@mui/icons-material/Google';
 import TelegramIcon from '@mui/icons-material/Telegram';
@@ -22,12 +22,12 @@ import MDSnackbar from "@/components/MDSnackbar";
 
 const FACEBOOK_APP_ID = "499798672825129";
 const FACEBOOK_APP_SECRET = "0972b471f1d251f8db7762be1db4613c";
-// const REDIRECT_URI = "http://localhost:5173/social";
+const REDIRECT_URI = "http://localhost:5173/social";
 // const FACEBOOK_APP_ID = "658464799854317";
 // const FACEBOOK_APP_SECRET = "b9d95073b6749e1aabc63d5bbad45529";
 // const REDIRECT_URI = "https://marketincerfe.kukus.in/social";
 
-const REDIRECT_URI = "https://www.marketincer.com/social";
+// const REDIRECT_URI = "https://www.marketincer.com/social";
 
 const Index = () => {
   const [openModal, setOpenModal] = useState(false);
