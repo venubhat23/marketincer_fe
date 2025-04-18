@@ -353,10 +353,10 @@ const Home = () => {
               <li><a href="#resources" style={styles.mainNavLink}>Resources</a></li>
               <li>
                 <a 
-                  href="https://www.marketincer.com/sign-up" 
+                  href="https://www.marketincer.com/sign-in" 
                   style={{...styles.mainNavLink, ...styles.navCta}}
                 >
-                  Sign Up
+                  Sign In
                 </a>
               </li>
             </ul>

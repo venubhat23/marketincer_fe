@@ -39,7 +39,7 @@ import MDButton from "@/components/MDButton";
 import BasicLayout from "@/layouts/authentication/components/BasicLayout";
 
 // Images
-import bgImage from "./bg-sign-in-basic.jpeg";
+import bgImage from "https://marketincer-inage.s3.us-east-2.amazonaws.com/bg-sign-in-basic.jpeg";
 import { useForm, Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
