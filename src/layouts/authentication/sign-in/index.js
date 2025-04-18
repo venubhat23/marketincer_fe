@@ -46,6 +46,7 @@ import axios from "axios";
 import { useAuth } from "@/authContext/AuthContext";
 import { toast } from "react-toastify";
 
+
 function Basic() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
@@ -57,6 +58,9 @@ function Basic() {
   } = useForm();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+
+  // const handleSetRememberMe = () => setRememberMe(!rememberMe);
+   // const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   useEffect(() => {
     if (isAuthenticated) {
