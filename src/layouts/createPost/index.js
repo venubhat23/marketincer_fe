@@ -477,13 +477,21 @@ const CreatePost = () => {
         >
           <h6 >Select a predefined timeslot</h6>
           <Flatpickr
-           options={{
+          options={{
             inline: true,
             enableTime: true,
             dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            defaultDate: selectedDateTime,
           }}
             value={selectedDateTime}
-            onChange={([date]) => setSelectedDateTime(date)}
+            onChange={([date]) => {
+              console.log("raw date:", date);
+       
+              console.log("ISO:", date.toISOString());
+              setSelectedDateTime(date)
+
+            }}
           />
        
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: "20px" }}>
