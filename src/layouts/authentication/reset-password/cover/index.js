@@ -26,7 +26,7 @@ import MDButton from "@/components/MDButton";
 import CoverLayout from "@/layouts/authentication/components/CoverLayout";
 
 // Images
-import bgImage from "https://harshal-chaudhari.in/images/bg-reset-cover.jpeg";
+import bgImage from "./images/bg-reset-cover.jpeg";
 
 function Cover() {
   return (
