@@ -98,7 +98,7 @@ function Basic() {
   };
 
   return (
-    <BasicLayout image={bgImage}>
+    <BasicLayout image="https://marketincer-inage.s3.us-east-2.amazonaws.com/bg-sign-in-basic.jpeg">
       <Card>
         <MDBox
           variant="gradient"
