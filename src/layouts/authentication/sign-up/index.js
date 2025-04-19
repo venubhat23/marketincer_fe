@@ -110,7 +110,7 @@ function Cover() {
   };
   console.log(mutation);
   return (
-    <CoverLayout image={bgImage}>
+    <CoverLayout image="https://marketincer-inage.s3.us-east-2.amazonaws.com/bg-sign-up-cover.jpeg">
       <Card>
         <MDBox
           variant="gradient"
