@@ -196,7 +196,7 @@ const Index = () => {
       <DashboardLayout>
         <DashboardNavbar />
         <MDBox pt={6} pb={3} textAlign="center">
-          <img src={onBoardImage} alt="Social Header" width={100} />
+          <img src="https://marketincer-inage.s3.us-east-2.amazonaws.com/on-board-social-accounts.jpeg" alt="Social Header" width={100} />
           <MDTypography variant="h5" fontWeight="bold" textAlign="center" mt={2} >
             Add your social accounts
           </MDTypography>

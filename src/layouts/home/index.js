@@ -353,7 +353,7 @@ const Home = () => {
               <li><a href="#resources" style={styles.mainNavLink}>Resources</a></li>
               <li>
                 <a 
-                  href="https://www.marketincer.com/sign-in" 
+                  href="/sign-in" 
                   style={{...styles.mainNavLink, ...styles.navCta}}
                 >
                   Sign In
