@@ -35,7 +35,9 @@ import GoogleIcon from "@mui/icons-material/Google";
 import CoverLayout from "@/layouts/authentication/components/CoverLayout";
 import MuiLink from "@mui/material/Link";
 
-import { Controller, useForm } from "react-hook-form";
+// Images
+import bgImage from "@/assets/images/bg-sign-in-basic.jpeg";
+import { useForm, Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "@/authContext/AuthContext";
