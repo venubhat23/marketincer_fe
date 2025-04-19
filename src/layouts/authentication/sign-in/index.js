@@ -59,7 +59,7 @@ function Cover() {
   const [isImageLoading, setIsImageLoading] = useState(true);
   
   // S3 background image URL - corrected "inage" to "image"
-  const bgImageUrl = "https://marketincer-image.s3.us-east-2.amazonaws.com/bg-sign-up-cover.jpeg";
+  const bgImageUrl = "https://marketincer-inage.s3.us-east-2.amazonaws.com/bg-sign-in-basic.jpeg";
   
   // Pre-load the background image
   useEffect(() => {
