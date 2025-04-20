@@ -141,7 +141,7 @@
   
   .rbc-month-row .rbc-event-content {
     height: auto;
-    width: 175px;
+    width: 98%;
   }
   
   .rbc-month-view .rbc-today,
@@ -319,12 +319,14 @@
     max-width: 355px;
     touch-action: none;
     transition: opactiy 330ms linear;
-    width: 162px;
+    width: 86%;
     will-change: transform;
     margin: 10px;
     border-radius: 10px;
     font-size: 12px;
     padding: 10px;
+    text-wrap: auto;
+    max-width: 189px;
   }
   
   .event-header {
