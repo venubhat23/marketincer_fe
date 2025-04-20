@@ -41,7 +41,6 @@ const myEventsList = [
         end: new Date(2025, 2, 18, 3, 0),
         brand_name: "d-mart",
         comments: "<p>sddsds</p>",
-        hashtags: "#sports #fitness",
         note: "<p>sddsds</p>",
         s3_url: "https://kitintellect.tech/storage/public/writable/uploads/aaFacebook/coder_mavala_logo_1742397832.png",
         status: "draft",
@@ -166,7 +165,6 @@ const EventModal = ({ event, open, onClose }) => {
             social_page_id: event.page_data.social_id,   // Only sending the first selected page for now
             post: {
                 s3_url: event.s3_url,
-                hashtags: "",  // Static hashtags
                 note: event.comments,
                 comments: event.comments, // Use the postContent for comments as well
                 brand_name: event.brand_name,
@@ -201,7 +199,6 @@ const EventModal = ({ event, open, onClose }) => {
             social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
             post: {
                 s3_url: event.s3_url,
-                hashtags: "",  // Static hashtags
                 note: event.comments,
                 comments: event.comments, // Use the postContent for comments as well
                 brand_name: event.brand_name,
@@ -243,7 +240,6 @@ const EventModal = ({ event, open, onClose }) => {
           social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
           post: {
             s3_url: uploadedImageUrl,
-            hashtags: "",
             note: stripHtmlTags(postContent),        // ✅ Apply to postContent
             comments: stripHtmlTags(postContent),  
             brand_name: brandName,
