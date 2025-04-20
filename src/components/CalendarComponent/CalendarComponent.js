@@ -75,7 +75,6 @@ const myEventsList = [
 ];
 // Move CustomMonthRow to top
 const CustomMonthRow = ({ dates, ...props }) => {
-    console.log('Received dates:', dates);
 
     // Convert dates to moment objects for comparison
     const weekDays = dates.map(date => moment(date).startOf('day'));
@@ -760,6 +759,7 @@ const CustomDateCell = ({ date }) => {
 };
 const CustomToolbar = ({
     label,
+    date,
     view,
     onNavigate,
     onView,
@@ -802,7 +802,7 @@ const CustomToolbar = ({
     });
 
     const getHeaderLabel = () => {
-        const currentDate = moment(label);
+        const currentDate = moment(date);
 
         switch (view) {
             case 'month':
@@ -1047,7 +1047,7 @@ const CalendarComponent = (props) => {
 
 
     const fetchEvents = async () => {
-        console.log('🔥 API called with:', debouncedSearchQuery);
+
         const postTypeMap = {
             'feed': null,
             'scheduled': 'scheduled',
@@ -1093,8 +1093,6 @@ const CalendarComponent = (props) => {
     };
 
     useEffect(() => {
-
-        console.log("🔥 Fetching with:", debouncedSearchQuery);
         fetchEvents();
 
     }, [debouncedSearchQuery, currentView, currentDate, props.selectedPages, selectedPostType]);
