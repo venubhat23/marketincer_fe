@@ -127,7 +127,7 @@ const EventCard = React.memo(({ event }) => {
     );
 });
 
-const EventModal = ({ event, open, onClose }) => {
+const EventModal = ({ event, open, onClose, refreshCalendar }) => {
     const [postContent, setPostContent] = useState(event?.comments || "");
     const [posting, setPosting] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
@@ -185,6 +185,7 @@ const EventModal = ({ event, open, onClose }) => {
             setPosting(false);
             setOpenDateTimePicker(false);
             closeHandler();
+            refreshCalendar?.();
         } catch (error) {
             console.error(`Error ${createPostMode}  post:`, error);
             alert(`Failed to ${createPostMode} post`);
@@ -217,7 +218,7 @@ const EventModal = ({ event, open, onClose }) => {
             // Optionally, clear form states
             closeHandler();
             setPosting(false);
-            window.location.reload();
+            refreshCalendar?.();
         } catch (error) {
             console.error("Error publishing post:", error);
             alert("Failed to publish post");
@@ -259,6 +260,7 @@ const EventModal = ({ event, open, onClose }) => {
           alert("Post updated successfully!");
           setPosting(false);
           setIsEdit(false); // Exit edit mode
+          refreshCalendar?.();
         } catch (error) {
           console.error("Error updating post:", error);
           alert("Failed to update post");
@@ -283,10 +285,7 @@ const EventModal = ({ event, open, onClose }) => {
           });
       
           alert("Post deleted successfully!");
-          // Optionally reset UI
-          //   setSelectedEvent(null);
-          //   setModalOpen(false);
-          window.location.reload();
+          refreshCalendar?.();
         } catch (error) {
           console.error("Error deleting post:", error);
           alert("Failed to delete post");
@@ -1020,6 +1019,7 @@ const CalendarComponent = (props) => {
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const token = localStorage.getItem("userToken");
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const getDateRange = (date, view) => {
         const momentDate = moment(date);
@@ -1095,7 +1095,7 @@ const CalendarComponent = (props) => {
     useEffect(() => {
         fetchEvents();
 
-    }, [debouncedSearchQuery, currentView, currentDate, props.selectedPages, selectedPostType]);
+    }, [debouncedSearchQuery, currentView, currentDate, props.selectedPages, selectedPostType, refreshKey]);
 
     const handleViewChange = (newView) => {
         setCurrentView(newView);
@@ -1172,6 +1172,7 @@ const CalendarComponent = (props) => {
                 event={selectedEvent}
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
+                refreshCalendar={() => setRefreshKey(prev => prev + 1)} 
             />
         </div>
     );
