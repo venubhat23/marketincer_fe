@@ -218,6 +218,7 @@ const EventModal = ({ event, open, onClose }) => {
             // Optionally, clear form states
             closeHandler();
             setPosting(false);
+            window.location.reload();
         } catch (error) {
             console.error("Error publishing post:", error);
             alert("Failed to publish post");
@@ -284,8 +285,9 @@ const EventModal = ({ event, open, onClose }) => {
       
           alert("Post deleted successfully!");
           // Optionally reset UI
-          setSelectedEvent(null);
-          setModalOpen(false);
+          //   setSelectedEvent(null);
+          //   setModalOpen(false);
+          window.location.reload();
         } catch (error) {
           console.error("Error deleting post:", error);
           alert("Failed to delete post");
@@ -720,7 +722,7 @@ const EventModal = ({ event, open, onClose }) => {
                                     backgroundColor: "#transprant !important", // Slightly darker on hover
                                 },
                             }}
-                            onClick={() => setOpenModal(false)}>
+                            onClick={() => setOpenDateTimePicker(false)}>
                             Cancel
                         </MDButton>
                         <MDButton variant="gradient"
