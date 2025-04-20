@@ -163,6 +163,7 @@ const EventModal = ({ event, open, onClose }) => {
         setPosting(true);
         const payloadData = {
             social_page_id: event.page_data.social_id,   // Only sending the first selected page for now
+            existing_post_id: event.post_id,
             post: {
                 s3_url: event.s3_url,
                 note: event.comments,
