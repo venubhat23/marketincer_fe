@@ -244,6 +244,8 @@ const CreatePost = () => {
       setPosting(false);
       setOpenDateTimePicker(false);
       setUploadedFileName('');
+      setOpen(false);
+      window.location.reload();
     } catch (error) {
       console.error(`Error ${createPostMode}  post:`, error);
       alert(`Failed to ${createPostMode} post`);
@@ -281,6 +283,8 @@ const CreatePost = () => {
       setUploadedImageUrl("");
       setPosting(false);
       setUploadedFileName('');
+      setOpen(false);
+      window.location.reload();
     } catch (error) {
       console.error("Error publishing post:", error);
       alert("Failed to publish post");
@@ -505,7 +509,7 @@ const CreatePost = () => {
                 backgroundColor: "#transprant !important", // Slightly darker on hover
               },
             }}
-            onClick={() => setOpenModal(false)}>
+            onClick={() => setOpenDateTimePicker(false)}>
               Cancel
             </MDButton>
             <MDButton variant="gradient"
