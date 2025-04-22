@@ -81,6 +81,7 @@ const routes = [
     // component: <Dashboard />,
     component: <ProtectedRoute element={<Dashboard />} />, // Protected
     // component: <Dashboard />,
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -91,6 +92,7 @@ const routes = [
     route: "/calendar",
     // component: <Calendar />,
     component: <ProtectedRoute element={<Calendar />} />, // Protected
+    roles: ["admin"]
   },
   {
     type: "collapse",
@@ -100,6 +102,7 @@ const routes = [
     route: "/media",
     component: <Media />,
     component: <ProtectedRoute element={<Media />} />, // Protected
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -109,6 +112,7 @@ const routes = [
     route: "/explore",
     // component: <Explore />,
     component: <ProtectedRoute element={<Explore />} />, // Protected
+    roles: ["admin", "influencer"]
   },
   // {
   //   type: "collapse",
@@ -127,6 +131,7 @@ const routes = [
     route: "/reporting",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Reporting />} />, // Protected
+    roles: ["admin"]
   },
   {
     type: "collapse",
@@ -136,6 +141,7 @@ const routes = [
     route: "/billing",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Billing />} />, // Protected
+    roles: ["admin", "influencer", "brand"]
   },
   {
     type: "collapse",
@@ -145,6 +151,7 @@ const routes = [
     route: "/social-pages",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Social />} />, // Protected
+    roles: ["influencer"]
   },
   {
     type: "collapse",
@@ -154,6 +161,7 @@ const routes = [
     route: "/social",
     // component: <Analytics />,
     component: <ProtectedRoute element={<AddSocialPages />} />, // Protected
+    roles: ["influencer"]
   },
   {
     type: "collapse",
@@ -163,6 +171,7 @@ const routes = [
     route: "/people",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Members />} />, // Protected
+    roles: ["influencer", "brand"]
   },
   {
     type: "collapse",
@@ -172,6 +181,7 @@ const routes = [
     route: "/help",
     // component: <Analytics />,
     component: <ProtectedRoute element={<HelpCenter />} />, // Protected
+    roles: ["influencer", "brand"]
   },
   {
     type: "collapse",
@@ -181,6 +191,7 @@ const routes = [
     route: "/chat",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Chat />} />, // Protected
+    roles: ["influencer", "brand"]
   },
   {
     // type: "collapse",

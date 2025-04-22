@@ -145,6 +145,14 @@ function App() {
     </MDBox>
   );
 
+  const userData = localStorage.getItem('userData')
+  const userRole = userData ? JSON.parse(userData).role : null;
+
+  const filteredRoutes = routes.filter((route) => {
+    if (!route.roles) return true;
+    return route.roles.includes(userRole);
+  });
+
   return direction === "rtl" ? (
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
@@ -159,7 +167,7 @@ function App() {
                   : brandWhite
               }
               brandName="Material Dashboard 2"
-              routes={routes}
+              routes={filteredRoutes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
@@ -169,7 +177,7 @@ function App() {
         )}
         {layout === "vr" && <Configurator />}
         <Routes>
-          {getRoutes(routes)}
+          {getRoutes(filteredRoutes)}
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </ThemeProvider>
@@ -189,7 +197,7 @@ function App() {
             // }
             brand={markeincer}
             brandName="Marketincer"
-            routes={routes}
+            routes={filteredRoutes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
@@ -199,7 +207,7 @@ function App() {
       )}
       {layout === "vr" && <Configurator />}
       <Routes>
-        {getRoutes(routes)}
+        {getRoutes(filteredRoutes)}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </ThemeProvider>
