@@ -81,7 +81,7 @@ const routes = [
     // component: <Dashboard />,
     component: <ProtectedRoute element={<Dashboard />} />, // Protected
     // component: <Dashboard />,
-    roles: ["admin", "influencer"]
+    roles: ["admin", "influencer", "brand"]
   },
   {
     type: "collapse",
@@ -92,7 +92,7 @@ const routes = [
     route: "/calendar",
     // component: <Calendar />,
     component: <ProtectedRoute element={<Calendar />} />, // Protected
-    roles: ["admin"]
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -112,17 +112,68 @@ const routes = [
     route: "/explore",
     // component: <Explore />,
     component: <ProtectedRoute element={<Explore />} />, // Protected
-    roles: ["admin", "influencer"]
+    roles: ["brand"]
   },
-  // {
-  //   type: "collapse",
-  //   name: "Analytics",
-  //   key: "analytics",
-  //   icon: <Icon fontSize="small">analytics</Icon>,
-  //   route: "/analytics",
-  //   // component: <Analytics />,
-  //   component: <ProtectedRoute element={<Analytics />} />, // Protected
-  // },
+  {
+    type: "collapse",
+    name: "Analytics",
+    key: "analytics",
+    icon: <Icon fontSize="small">analytics</Icon>,
+    route: "/analytics",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<Analytics />} />, // Protected
+    roles: ["brand"]
+  },
+  {
+    type: "collapse",
+    name: "Contract",
+    key: "contract",
+    icon: <Icon fontSize="small">analytics</Icon>,
+    route: "/contract",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<Analytics />} />, // Protected
+    roles: ["brand"]
+  },
+  {
+    type: "collapse",
+    name: "Leads",
+    key: "leads",
+    icon: <Icon fontSize="small">summarize</Icon>,
+    route: "/leads",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<Reporting />} />, // Protected
+    roles: ["brand"]
+  },
+  {
+    type: "collapse",
+    name: "Lead Generator",
+    key: "lead_generator",
+    icon: <Icon fontSize="small">analytics</Icon>,
+    route: "/lead_generator",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<Analytics />} />, // Protected
+    roles: ["brand"]
+  },
+  {
+    type: "collapse",
+    name: "Posts",
+    key: "posts",
+    icon: <Icon fontSize="small">analytics</Icon>,
+    route: "/posts",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<Analytics />} />, // Protected
+    roles: ["brand"]
+  },
+  {
+    type: "collapse",
+    name: "Post Order",
+    key: "post_order",
+    icon: <Icon fontSize="small">analytics</Icon>,
+    route: "/posts",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<Analytics />} />, // Protected
+    roles: ["brand"]
+  },
   {
     type: "collapse",
     name: "Reports",
@@ -131,7 +182,7 @@ const routes = [
     route: "/reporting",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Reporting />} />, // Protected
-    roles: ["admin"]
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -151,7 +202,7 @@ const routes = [
     route: "/social-pages",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Social />} />, // Protected
-    roles: ["influencer"]
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -161,7 +212,7 @@ const routes = [
     route: "/social",
     // component: <Analytics />,
     component: <ProtectedRoute element={<AddSocialPages />} />, // Protected
-    roles: ["influencer"]
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -171,17 +222,7 @@ const routes = [
     route: "/people",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Members />} />, // Protected
-    roles: ["influencer", "brand"]
-  },
-  {
-    type: "collapse",
-    name: "Help Center",
-    key: "help_center",
-    icon: <Icon fontSize="small">help</Icon>,
-    route: "/help",
-    // component: <Analytics />,
-    component: <ProtectedRoute element={<HelpCenter />} />, // Protected
-    roles: ["influencer", "brand"]
+    roles: ["admin", "influencer"]
   },
   {
     type: "collapse",
@@ -191,7 +232,17 @@ const routes = [
     route: "/chat",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Chat />} />, // Protected
-    roles: ["influencer", "brand"]
+    roles: ["admin", "influencer"]
+  },
+  {
+    type: "collapse",
+    name: "Help Center",
+    key: "help_center",
+    icon: <Icon fontSize="small">help</Icon>,
+    route: "/help",
+    // component: <Analytics />,
+    component: <ProtectedRoute element={<HelpCenter />} />, // Protected
+    roles: ["admin", "influencer"]
   },
   {
     // type: "collapse",
