@@ -4,75 +4,17 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './style.css';
 import moment from 'moment';
 import InstagramIcon from "@mui/icons-material/Instagram";
-import FacebookIcon from "@mui/icons-material/Facebook";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import MDButton from "@/components/MDButton";
-import BorderColorIcon from '@mui/icons-material/BorderColor';
 import axios from "axios";
-import {
-    Modal, Box, IconButton, Button, Typography, InputLabel, FormControl, Select,
-    TextField, MenuItem, Divider, ListItemIcon
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import MyEditor from "../../components/Editor";
-import MDInput from "@/components/MDInput";
-import {
-    Avatar,
-} from "@mui/material";
-import Menu from "@mui/material/Menu";
-import TuneIcon from '@mui/icons-material/Tune';
-import RestoreIcon from '@mui/icons-material/Restore';
-import InputAdornment from '@mui/material/InputAdornment';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import FmdGoodIcon from '@mui/icons-material/FmdGood';
-import ForumIcon from '@mui/icons-material/Forum';
-import ShareIcon from '@mui/icons-material/Share';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import Flatpickr from "react-flatpickr";
+import { Box } from '@mui/material';
 import "flatpickr/dist/themes/material_green.css";
 import useDebounce from './useDebounce';
+import EventModal from './EventModal';
+import CustomToolbar from './CustomToolbar';
+
 
 const localizer = momentLocalizer(moment);
 
-// Dummy events list
-const myEventsList = [
-    {
-        start: new Date(2025, 2, 18, 2, 0), // March 18, 2025, 02:00 AM
-        end: new Date(2025, 2, 18, 3, 0),
-        brand_name: "d-mart",
-        comments: "<p>sddsds</p>",
-        note: "<p>sddsds</p>",
-        s3_url: "https://kitintellect.tech/storage/public/writable/uploads/aaFacebook/coder_mavala_logo_1742397832.png",
-        status: "draft",
-        page_data: {
-            "id": 9,
-            "social_account_id": 9,
-            "name": "Unique Fold",
-            "username": "unique-fold",
-            "page_type": null,
-            "social_id": "101337422566880",
-            "page_id": "101337422566880",
-            "picture_url": null,
-            "access_token": "EAAJW3shZBDu0BO7MZBNWYP678u49NWuQRQpgU1ZAbb50PCicaTv82Mm0kfdHatlWZC1ZBDqOgbJJPAbBUi6ZBrosUcBZCo3GlqZBlSQb3Q4CIfZCqpyiqpMooqUZCvocCwTfxbI82QZBVjUgWwSUSy9suc2VZCZCZBySgnUNH64iyHkIrdlF6mZBxhVnWlvyZAPJYwn2ZCJwZD",
-            "connected": true,
-            "page_info": {
-                "id": "101337422566880",
-                "name": "Unique Fold",
-                "picture": {
-                    "data": {
-                        "height": 50,
-                        "is_silhouette": false,
-                        "url": "https://scontent-sea1-1.xx.fbcdn.net/v/t39.30808-1/278835906_101425622558060_3186083233071941773_n.jpg?stp=cp0_dst-jpg_s50x50_tt6\u0026_nc_cat=105\u0026ccb=1-7\u0026_nc_sid=fe756c\u0026_nc_ohc=UbpL4PeIVisQ7kNvgGbWfq6\u0026_nc_oc=AdnEZHRIhO2Ximxac1ycVbewr5YjuipgrZWMwYGOvB1IXT2o15WmBsWPvHz6MP0dA0Q\u0026_nc_zt=24\u0026_nc_ht=scontent-sea1-1.xx\u0026edm=AJdBtusEAAAA\u0026_nc_gid=DzaOZvYQy_jd2--kpcwY3Q\u0026oh=00_AYE1vrvNpdTxAojqiOpyZXwGSr7jvx3ApF9j-bvAWylA6A\u0026oe=67E0BE87",
-                        "width": 50
-                    }
-                }
-            },
-            "created_at": "2025-03-19T15:22:24.959Z",
-            "updated_at": "2025-03-19T15:22:24.959Z"
-        },
-    },
-
-];
 // Move CustomMonthRow to top
 const CustomMonthRow = ({ dates, ...props }) => {
 
@@ -114,636 +56,30 @@ const EventCard = React.memo(({ event }) => {
                 >
                     <InstagramIcon sx={{ color: "#E1306C", width: 20, height: 20, }} />
                     {event.page_data?.name}
+                    <div className="event-time">🕒 {moment(event.start).format('HH:mm')}</div>
                 </Box>
 
             </div>
-            <div className="event-time">🕒 {moment(event.start).format('HH:mm')}</div>
-            <div className="event-image-container">
+            <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        color: "#000000",
+                        fontSize: "13px"
+                    }}
+                >
+                 <div className="event-image-container">
                 <img src={event.s3_url} alt={event.page_data?.name} className="event-image" />
             </div>
             <div className="event-description">  <span dangerouslySetInnerHTML={{ __html: event.comments }} /> </div>
-            <button className="edit-button"><CalendarMonthIcon sx={{ color: "#3ec1af", width: 20, height: 20, }} /></button>
+                </Box>
+           
+            
+            
         </div>
     );
 });
-
-const EventModal = ({ event, open, onClose, refreshCalendar }) => {
-    const [postContent, setPostContent] = useState(event?.comments || "");
-    const [posting, setPosting] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-    const [file, setFile] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [selectedPages, setSelectedPages] = useState([]);
-    const [brandName, setBrandName] = useState("");
-    const fileInputRef = useRef(null);
-    const [uploadedFileName, setUploadedFileName] = useState("");
-    const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
-    const [selectedDateTime, setSelectedDateTime] = useState(new Date());
-    const [createPostMode, setCreatePostMode] = useState("");
-    useEffect(() => {
-        setPostContent(event?.comments);
-        setUploadedImageUrl(event?.s3_url);
-        setUploadedFileName(event?.s3_url?.split('/').pop() || '');
-        setBrandName(event?.brand_name);
-    }, [event]);
-    if (!event) return null;
-
-    const draftModelOpen = async (action) => {
-
-        setCreatePostMode(action);
-        setOpenDateTimePicker(true);
-
-    };
-
-
-    const draftHandler = async () => {
-        setPosting(true);
-        const payloadData = {
-            social_page_id: event.page_data.social_id,   // Only sending the first selected page for now
-            existing_post_id: event.post_id,
-            post: {
-                s3_url: event.s3_url,
-                note: event.comments,
-                comments: event.comments, // Use the postContent for comments as well
-                brand_name: event.brand_name,
-                status: createPostMode,
-                scheduled_at: selectedDateTime
-            },
-        };
-
-        try {
-            const token = localStorage.getItem("userToken");
-            await axios.post("https://api.marketincer.com/api/v1/posts/schedule", payloadData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-            alert(`Post ${createPostMode} successfully!`);
-
-            setPosting(false);
-            setOpenDateTimePicker(false);
-            closeHandler();
-            refreshCalendar?.();
-        } catch (error) {
-            console.error(`Error ${createPostMode}  post:`, error);
-            alert(`Failed to ${createPostMode} post`);
-        }
-    };
-
-    const handlePublish = async (status = "publish") => {
-
-        setPosting(true);
-       
-        const payloadData = {
-            social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
-            post: {
-                s3_url: event.s3_url,
-                note: event.comments,
-                comments: event.comments, // Use the postContent for comments as well
-                brand_name: event.brand_name,
-                status: status
-            },
-        };
-
-        try {
-            const token = localStorage.getItem("userToken");
-            await axios.post("https://api.marketincer.com/api/v1/posts", payloadData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-            alert("Post published successfully!");
-            // Optionally, clear form states
-            closeHandler();
-            setPosting(false);
-            refreshCalendar?.();
-        } catch (error) {
-            console.error("Error publishing post:", error);
-            alert("Failed to publish post");
-        }
-    };
-
-    const handleUpdate = async () => {
-        // if (!event?.post_id) {
-        //   alert("No post ID found for update.");
-        //   return;
-        // }
-      
-        if (!uploadedImageUrl || !postContent) {
-          alert("Please make sure all fields are filled out!");
-          return;
-        }
-      
-        setPosting(true);
-        const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
-        const payloadData = {
-          social_page_id: event.page_data.social_id,  // Only sending the first selected page for now
-          post: {
-            s3_url: uploadedImageUrl,
-            note: stripHtmlTags(postContent),        // ✅ Apply to postContent
-            comments: stripHtmlTags(postContent),  
-            brand_name: brandName,
-            status: event.status || "draft", // Keep current status if available
-          },
-        };
-      
-        try {
-          const token = localStorage.getItem("userToken");
-          await axios.patch(`https://api.marketincer.com/api/v1/posts/${event.post_id}`, payloadData, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          });
-      
-          alert("Post updated successfully!");
-          setPosting(false);
-          setIsEdit(false); // Exit edit mode
-          refreshCalendar?.();
-        } catch (error) {
-          console.error("Error updating post:", error);
-          alert("Failed to update post");
-        }
-      };
-
-    const handleDelete = async () => {
-        if (!event?.post_id) {
-          alert("No post ID found for deletion.");
-          return;
-        }
-      
-        const confirmDelete = window.confirm("Are you sure you want to delete this post?");
-        if (!confirmDelete) return;
-      
-        try {
-          const token = localStorage.getItem("userToken");
-          await axios.delete(`https://api.marketincer.com/api/v1/posts/${event.post_id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          });
-      
-          alert("Post deleted successfully!");
-          refreshCalendar?.();
-        } catch (error) {
-          console.error("Error deleting post:", error);
-          alert("Failed to delete post");
-        }
-      };
-
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
-            setUploadedFileName(selectedFile.name);
-
-            // ✅ Auto-upload the file after selection
-            handleFileUpload(selectedFile);
-        }
-    };
-
-    const handleDrop = (event) => {
-        event.preventDefault();
-        const droppedFile = event.dataTransfer.files[0];
-        if (droppedFile) {
-            setFile(droppedFile);
-            setUploadedFileName(droppedFile.name);
-
-            // ✅ Auto-upload the file after drop
-            handleFileUpload(droppedFile);
-        }
-    };
-
-    const handleFileUpload = async (file) => {
-        if (!file) return;
-
-        setUploading(true);
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const response = await fetch(
-                "https://kitintellect.tech/storage/public/api/upload/aaFacebook",
-                {
-                    method: "POST",
-                    body: formData,
-                }
-            );
-
-            const data = await response.json();
-
-            if (data.url) {
-                setUploadedImageUrl(data.url); // ✅ Store uploaded file URL
-                toast.success("File uploaded successfully!", {
-                    position: "top-right",
-                    autoClose: 5000,
-                });
-            } else {
-                throw new Error("Upload failed");
-            }
-        } catch (error) {
-            toast.error("File upload failed!", {
-                position: "top-right",
-                autoClose: 5000,
-            });
-            console.error("Error uploading file:", error);
-        } finally {
-            setUploading(false);
-        }
-    };
-    const handleBoxClick = () => {
-        fileInputRef.current.click(); // ✅ Triggers the hidden file input
-    };
-  
-    const closeHandler = () => {
-        onClose();
-        setIsEdit(false);
-    }
-
-    return (
-        <>
-            <Modal
-                open={open}
-                onClose={closeHandler}
-                aria-labelledby="event-modal-title"
-            >
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 700,
-                    bgcolor: 'background.paper',
-                    boxShadow: 24,
-                    p: 3,
-                    borderRadius: 2,
-                    outline: 'none'
-                }}>
-                    <IconButton
-                        aria-label="close"
-                        onClick={closeHandler}
-                        sx={{
-                            position: 'absolute',
-                            right: 16,
-                            top: 16,
-                            color: 'text.secondary'
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-
-                    <div>
-                        <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px", marginRight: "40px", }}>
-                            <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-                                <Avatar sx={{ marginRight: "10px" }} src={event.page_data?.page_info?.picture?.data?.url}></Avatar>
-                                <Box>
-                                    <Typography variant="body1" sx={{ fontSize: "14px", fontWeight: "700" }}>{event.page_data?.name}</Typography>
-                                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: "14px" }}>
-                                        {event.page_data?.username}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                marginBottom: '24px'
-                            }}>
-                                <span className="model-time" style={{ colr: "#cdcdcd" }}>
-                                    <CalendarMonthIcon style={{ marginRight: "3px" }} />{moment(event.start).format('ddd, D MMM [at] HH:mm')}
-                                </span>
-                            </div>
-                        </Box>
-                        {isEdit ? (<>
-                            <Box sx={{ width: "100%" }}>
-                                <Box sx={{ width: "100%", position: "relative", marginBottom: "10px" }}>
-                                    <MyEditor value={postContent} onChange={setPostContent} />
-
-                                    <Box
-                                        display="flex"
-                                        sx={{
-                                            marginBottom: "0px",
-                                            position: "absolute",
-                                            bottom: "-9px",
-                                            gap: "0px"
-                                        }}
-                                    >
-                                        <MDButton
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{
-                                                margin: "0.09375rem 1rem",
-                                                mb: 2,
-                                                borderRadius: "50px", // ✅ Fully rounded border
-                                                borderColor: "#B0B0B0", // ✅ Gray border
-                                                color: "#757575", // ✅ Gray text
-                                                backgroundColor: "#F0F0F0", // ✅ Light gray background
-                                                "&:hover": {
-                                                    backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
-                                                },
-                                            }}
-                                            onClick={() => { }}
-                                            to="/social"
-                                        >
-                                            # Hashtag
-                                        </MDButton>
-                                        <MDButton
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{
-                                                margin: "0.09375rem 0rem",
-                                                mb: 2,
-                                                borderRadius: "50px", // ✅ Fully rounded border
-                                                borderColor: "#B0B0B0", // ✅ Gray border
-                                                color: "#757575", // ✅ Gray text
-                                                backgroundColor: "#F0F0F0", // ✅ Light gray background
-                                                "&:hover": {
-                                                    backgroundColor: "#E0E0E0", // ✅ Slightly darker gray on hover
-                                                },
-                                            }}
-                                            onClick={() => { }}
-                                            to="/social"
-                                        >
-                                            * AI Assist
-                                        </MDButton>
-
-                                    </Box>
-                                </Box>
-                                <FormControl fullWidth>
-                                    <InputLabel id="demo-simple-select-label">Brand</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id="demo-simple-select"
-                                        label="Brand"
-                                        sx={{
-                                            width: "-webkit-fill-available",
-                                            height: "50px",
-                                            margin: "0px",
-                                            marginTop: "10px"
-                                        }}
-                                        value={brandName}
-                                        onChange={(e) => setBrandName(e.target.value)}
-                                    >
-                                        <MenuItem value={"d-mart"}>D-Mart</MenuItem>
-                                        <MenuItem value={"v-mart"}>V-Mart</MenuItem>
-                                        <MenuItem value={"blinkit"}>Blinkit</MenuItem>
-                                    </Select>
-                                </FormControl>
-
-                                {/* File Upload Section */}
-                                <Box
-                                    display="flex"
-                                    justifyContent="center"
-                                    alignItems="center"
-                                    flexDirection="column"
-                                    sx={{
-                                        width: "100%",
-                                        padding: "16px",
-                                        border: "1px dashed #ccc",
-                                        borderRadius: "8px",
-                                        backgroundColor: "#f9f9f9",
-                                        textAlign: "center",
-                                        cursor: "pointer",
-                                        my: 2,
-                                        margin: "10px",
-                                        marginLeft: "0px",
-                                    }}
-                                    onClick={handleBoxClick}
-                                    onDrop={handleDrop} // ✅ Handles dropped files
-                                    onDragOver={(e) => e.preventDefault()} // ✅ Prevents default drag behavior
-                                >
-                                    <Typography variant="body1" sx={{ color: "#666" }}>
-                                        Click or Drag & Drop media
-                                    </Typography>
-
-                                    {uploadedFileName && (
-                                        <Typography variant="body2" sx={{
-                                            color: "#444", mt: 1, whiteSpace: "nowrap", // ✅ Ensures text does not wrap
-                                            overflow: "hidden", // ✅ Hides overflow text
-                                            textOverflow: "ellipsis", maxWidth: "400px",
-                                        }}>
-                                            Selected File: {uploadedFileName}
-                                        </Typography>
-                                    )}
-
-                                    {uploading && <Typography variant="body2">Uploading...</Typography>}
-                                </Box>
-
-                                {/* Hidden File Input */}
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    onChange={handleFileChange}
-                                    style={{ display: "none" }}
-                                />
-                                <MDButton
-                                    variant="gradient"
-                                    size="small"
-                                    sx={{
-                                        height: "10px",
-                                        backgroundColor: "#01cbc6 !important",
-                                        color: "white !important",
-                                        "&:hover": {
-                                            backgroundColor: "#00b3ad !important",
-                                        },
-                                    }}
-                                    onClick={() => handleUpdate()}
-                                    disabled={posting}
-                                >
-                                    Update
-                                </MDButton>
-                            </Box>
-                        </>) : (<>
-                            <p style={{
-                                fontSize: '14px',
-                                color: '#444',
-                                marginBottom: '10px',
-                                lineHeight: '1.5'
-                            }}>
-                                <span dangerouslySetInnerHTML={{ __html: event.comments }} />
-                            </p>
-                            <div className="model-event-image-container">
-                                <img src={event.s3_url} alt={event.page_data?.name} className="model-event-image" />
-                            </div>
-
-                            <Typography
-                                variant="body1"
-                                sx={{
-                                    fontSize: "14px",
-                                    color: "#000000",
-                                }}
-                            >Link in Bio<ErrorOutlineIcon
-                                    sx={{ width: 29, height: 29, paddingTop: "15px", border: "none" }}
-                                />
-                            </Typography>
-                            <Typography
-                                variant="body2"
-
-                                sx={{
-                                    fontSize: "14px",
-                                    color: "#545454",
-                                    marginBottom: "10px"
-                                }}
-                            >
-                                click <a href='#' sx={{
-                                    color: "#4e4e4e",
-                                }}>here</a> to update your Link in Bio Settings
-                            </Typography>
-
-
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    borderTop: '1px solid #f0f0f0',
-                                    paddingTop: '16px',
-                                }}
-                            >
-                                {/* Left side: 4 icons separated by | */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', color: '#9e9e9e' }}>
-                                    <FmdGoodIcon style={{ color: '#9e9e9e' }} />
-                                    <span>|</span>
-                                    <ForumIcon style={{ color: '#9e9e9e' }} />
-                                    <span>|</span>
-                                    <ShareIcon style={{ color: '#9e9e9e' }} />
-                                    <span>|</span>
-                                    <RemoveRedEyeIcon style={{ color: '#9e9e9e' }} />
-                                </div>
-
-                                {/* Right side: Buttons */}
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'flex-end',
-                                        gap: '8px',
-                                    }}
-                                >
-                                    <Button
-                                        variant="link"
-                                        sx={{ height: "10px", color: "red", marginTop: "12px" }}
-                                        onClick={() => handleDelete()}
-                                    >
-                                        Delete
-                                    </Button>
-
-                                    <MDButton
-                                        variant="outlined"
-                                        color="info"
-                                        size="small"
-                                        sx={{ height: "10px" }}
-                                        onClick={() => setIsEdit(true)}
-                                    >
-                                        Edit
-                                    </MDButton>
-
-                                    <MDButton
-                                        variant="gradient"
-                                        size="small"
-                                        sx={{
-                                            height: "10px",
-                                            backgroundColor: "#01cbc6 !important",
-                                            color: "white !important",
-                                            "&:hover": {
-                                                backgroundColor: "#00b3ad !important",
-                                            },
-                                        }}
-                                        onClick={() => handlePublish("publish")}
-                                        disabled={posting}
-                                    >
-                                        { event?.status === 'scheduled' ? 'Publish Now' : 'Publish'}
-                                    </MDButton>
-
-                                    <MDButton
-                                        variant="gradient"
-                                        size="small"
-                                        sx={{
-                                            height: "10px",
-                                            backgroundColor: "#01cbc6 !important",
-                                            color: "white !important",
-                                            "&:hover": {
-                                                backgroundColor: "#00b3ad !important",
-                                            },
-                                        }}
-                                        onClick={() => draftModelOpen("schedule")}
-                                        disabled={posting}
-                                    >
-                                        { event?.status === 'scheduled' ? 'Reschedule' : 'Schedule'} 
-                                    </MDButton>
-                                </div>
-                            </div>
-                        </>)}
-                    </div>
-                </Box>
-            </Modal>
-            <Modal
-                open={openDateTimePicker}
-                onClose={() => setOpenDateTimePicker(false)}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-            >
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: 400,
-                        bgcolor: "background.paper",
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: "10px",
-                    }}
-                >
-                    <h6 >Select a predefined timeslot</h6>
-                    <Flatpickr
-                        options={{
-                            inline: true,
-                            enableTime: true,
-                            dateFormat: "Y-m-d H:i",
-                        }}
-                        value={selectedDateTime}
-                        onChange={([date]) => setSelectedDateTime(date)}
-                    />
-
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: "20px" }}>
-                        <MDButton variant="outlined"
-                            sx={{
-                                margin: "0.09375rem 1px",
-                                mb: 2,
-                                border: "1px solid #01cbc6",
-                                backgroundColor: "transprant !important", // Ensures background color applies
-                                color: "#01cbc6 !important", // ✅ Forces white text
-                                "&:hover": {
-                                    border: "1px solid #00b3ad",
-                                    backgroundColor: "#transprant !important", // Slightly darker on hover
-                                },
-                            }}
-                            onClick={() => setOpenDateTimePicker(false)}>
-                            Cancel
-                        </MDButton>
-                        <MDButton variant="gradient"
-                            onClick={draftHandler}
-                            sx={{
-                                margin: "0.09375rem 1px",
-                                mb: 2,
-                                backgroundColor: "#01cbc6 !important", // Ensures background color applies
-                                color: "white !important", // ✅ Forces white text
-                                "&:hover": {
-                                    backgroundColor: "#00b3ad !important", // Slightly darker on hover
-                                },
-                            }}>
-                            Save
-                        </MDButton>
-                    </Box>
-                </Box>
-            </Modal>
-        </>
-
-    );
-};
-
 
 // 2. Custom Date Cell Component
 const CustomDateCell = ({ date }) => {
@@ -756,255 +92,6 @@ const CustomDateCell = ({ date }) => {
         </div>
     );
 };
-const CustomToolbar = ({
-    label,
-    date,
-    view,
-    onNavigate,
-    onView,
-    onPostTypeChange,
-    searchQuery,
-    onSearchChange
-}) => {
-    const [currentView, setCurrentView] = React.useState(view);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [openDateTimePicker, setOpenDateTimePicker] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedDateTime, setSelectedDateTime] = useState(new Date());
-    const [localPostType, setLocalPostType] = useState('feed');
-
-    const open = Boolean(anchorEl);
-
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleViewChange = (view) => {
-        setCurrentView(view);
-        onView(view);
-    };
-
-    const handlePostTypeChange = (event) => {
-        const newType = event.target.value;
-        setLocalPostType(newType);
-        onPostTypeChange(newType); // Propagate up to parent
-    };
-    // Configure moment to start week on Monday (ISO standard)
-    moment.updateLocale('en', {
-        week: {
-            dow: 1, // Monday as first day of week
-            doy: 4  // First week of year contains January 4th
-        }
-    });
-
-    const getHeaderLabel = () => {
-        const currentDate = moment(date);
-
-        switch (view) {
-            case 'month':
-                return currentDate.format('MMMM YYYY');
-            case 'week':
-                //   const start = currentDate.clone().startOf('isoWeek');
-                //   const end = currentDate.clone().endOf('isoWeek');
-
-                return label;
-            case 'day':
-                return currentDate.format('D MMM YYYY');
-            default:
-                return currentDate.format('MMMM YYYY');
-        }
-    };
-
-    return (
-        <div className="custom-toolbar">
-            <div className="toolbar-left">
-                <button className="nav-button" onClick={() => onNavigate('PREV')}>
-                    ‹
-                </button>
-                <h2 className="month-label" onClick={() => setOpenDateTimePicker(true)}>{getHeaderLabel()}</h2>
-                <button className="nav-button" onClick={() => onNavigate('NEXT')}>
-                    ›
-                </button>
-            </div>
-
-            <Box className="toolbar-right" sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-            }}>
-
-                <MDInput
-                    placeholder="Search Here"
-                    size="small"
-                    className="calendar-search"
-                    sx={{ padding: "6px" }}
-                    value={searchQuery}
-                    onChange={(e) => {
-                        console.log('Typing:', e.target.value);
-                        onSearchChange(e.target.value);
-                    }}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                {searchQuery && (
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => {
-                                            onSearchChange('');
-                                        }}
-                                        sx={{ p: 0.5, mr: -1 }}
-                                    >
-                                        <CloseIcon fontSize="small" />
-                                    </IconButton>
-                                )}
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-
-                <div className="view-switcher">
-                    <select
-                        className="feed-dropdown"
-                        value={localPostType}
-                        onChange={handlePostTypeChange}
-                    >
-                        <option value="feed">All Post</option>
-                        <option value="scheduled">Scheduled</option>
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                    </select>
-                </div>
-                <div className="view-switcher">
-                    <select
-                        className="feed-dropdown"
-                        onChange={(e) => handleViewChange(e.target.value)}
-                        value={currentView}
-                    >
-
-                        <option value="month">Monthly View</option>
-                        <option value="week">Weekly View</option>
-                        <option value="day">Daily View</option>
-                    </select>
-                </div>
-                <IconButton
-
-                    size="small"
-                    disableRipple
-                    id="basic-button"
-                    aria-controls={open ? "basic-menu" : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? "true" : undefined}
-                    onClick={handleClick}
-                >
-                    <TuneIcon />
-                </IconButton>
-                <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                        "aria-labelledby": "basic-button",
-                    }}
-                >
-                    <MenuItem
-                        onClick={() => {
-                            onSearchChange('');
-                            setLocalPostType('');
-                            onPostTypeChange('');
-                        }}
-                    >
-                        <RestoreIcon sx={{ width: 20, height: 20, marginRight: "15px" }} />{" "}
-                        Reset Filters
-                    </MenuItem>
-
-
-                </Menu>
-            </Box>
-            <Modal
-                open={openDateTimePicker}
-                onClose={() => setOpenDateTimePicker(false)}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-            >
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: 400,
-                        bgcolor: "background.paper",
-                        boxShadow: 24,
-                        padding: "30px",
-                        borderRadius: "10px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",  // ✅ this centers children horizontally
-                    }}
-                >
-
-                    <Box sx={{}}>
-                        <Flatpickr
-                            options={{
-                                inline: true,
-                                enableTime: false,
-                                dateFormat: "Y-m-d",
-                            }}
-                            value={selectedDateTime}
-                            onChange={([date]) => setSelectedDateTime(date)}
-                        />
-                    </Box>
-
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: "20px", width: "100%" }}>
-                        <MDButton variant="outlined"
-                            sx={{
-                                margin: "0.09375rem 1px",
-                                mb: 2,
-                                border: "1px solid #01cbc6",
-                                backgroundColor: "transparent !important",
-                                color: "#01cbc6 !important",
-                                "&:hover": {
-                                    border: "1px solid #00b3ad",
-                                    backgroundColor: "transparent !important",
-                                },
-                            }}
-                            onClick={() => setOpenDateTimePicker(false)}>
-                            Cancel
-                        </MDButton>
-                        <MDButton variant="gradient"
-                            onClick={() => {
-                                if (currentView !== 'month') {
-                                    onView('month');
-                                    setCurrentView('month');
-                                }
-                                onNavigate('DATE', selectedDateTime); // Fix this if needed
-                                setOpenDateTimePicker(false);
-                            }}
-                            sx={{
-                                margin: "0.09375rem 1px",
-                                mb: 2,
-                                backgroundColor: "#01cbc6 !important",
-                                color: "white !important",
-                                "&:hover": {
-                                    backgroundColor: "#00b3ad !important",
-                                },
-                            }}>
-                            Save
-                        </MDButton>
-                    </Box>
-
-                </Box>
-            </Modal>
-
-        </div>
-    );
-};
-
-
 
 const CalendarComponent = (props) => {
 
@@ -1020,6 +107,7 @@ const CalendarComponent = (props) => {
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const token = localStorage.getItem("userToken");
     const [refreshKey, setRefreshKey] = useState(0);
+     const [selectedPages, setSelectedPages] = useState([]);
 
     const getDateRange = (date, view) => {
         const momentDate = moment(date);
@@ -1065,7 +153,7 @@ const CalendarComponent = (props) => {
                     params: {
                         from,
                         to,
-                        account_ids: props.selectedPages,
+                        account_ids: selectedPages,
                         postType: postTypeMap[selectedPostType],
                         query: debouncedSearchQuery
                     },
@@ -1095,7 +183,7 @@ const CalendarComponent = (props) => {
     useEffect(() => {
         fetchEvents();
 
-    }, [debouncedSearchQuery, currentView, currentDate, props.selectedPages, selectedPostType, refreshKey]);
+    }, [debouncedSearchQuery, currentView, currentDate, selectedPages, selectedPostType, refreshKey]);
 
     const handleViewChange = (newView) => {
         setCurrentView(newView);
@@ -1113,7 +201,7 @@ const CalendarComponent = (props) => {
 
 
     return (
-        <div style={{ height: 'auto', minHeight: 600, width: "1400px" }}>
+        <div style={{ height: 'auto', minHeight: 900, width: "100%" }}>
             <Calendar
                 localizer={localizer}
                 events={myEventsList}
@@ -1123,7 +211,6 @@ const CalendarComponent = (props) => {
                 onNavigate={handleNavigate}
                 date={currentDate}
                 view={currentView}
-                
                 min={new Date(2025, 0, 1, 0, 0)} // Start of day
                 max={new Date(2025, 11, 31, 23, 59)} // End of day
                 step={60} // 60-minute intervals
@@ -1146,6 +233,8 @@ const CalendarComponent = (props) => {
                             onPostTypeChange={setSelectedPostType}
                             searchQuery={searchQuery}            // <-- still pass normal one for typing
                             onSearchChange={setSearchQuery}
+                            selectedPages={selectedPages}
+                            setSelectedPages={setSelectedPages}
                         />
                     ),
                     event: EventCard
@@ -1156,8 +245,6 @@ const CalendarComponent = (props) => {
                     ...props.style,
                     overflow: 'visible',
                     position: 'relative', // Add this
-                    margin: "10px"
-
                 }}
                 eventPropGetter={(event) => ({
                     style: {
