@@ -11,6 +11,7 @@ import React, { useState, useEffect } from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Flatpickr from "react-flatpickr";
 import './style.css';
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import {
     Box, IconButton,
     MenuItem,
@@ -161,7 +162,17 @@ const CustomToolbar = ({
                         ))}
                     </Select>
                 </FormControl>
-
+                <MDButton
+                  variant="outlined"
+                  color="info"
+                  sx={{ margin: "0.09375rem 1rem", mr: 0, ml: 0, p: 0}}
+                  onClick={() => {
+                    window.location.href = "/social";
+                  }}
+                  to="/social" // Define the destination URL
+                >
+                  <ControlPointIcon      sx={{ fontSize: "25px !important"}}/> 
+                </MDButton>
                 <MDInput
                     placeholder="Search Here"
                     size="small"
