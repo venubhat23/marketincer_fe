@@ -13,6 +13,7 @@ import Flatpickr from "react-flatpickr";
 import './style.css';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import {
+    Avatar,
     Box, IconButton,
     MenuItem,
     Modal,
@@ -20,9 +21,10 @@ import {
     InputLabel,
     Select,
     Checkbox,
-    ListItemText
+    ListItemText,
+    Autocomplete,
+    TextField
 } from '@mui/material';
-
 
 const CustomToolbar = ({
     label,
@@ -134,33 +136,40 @@ const CustomToolbar = ({
                 gap: "5px",
             }}>
                 <FormControl sx={{ minWidth: 200 }}>
-                    <Select
-                        displayEmpty
-                        multiple
-                        value={selectedPages}
-                        onChange={(e) => setSelectedPages(e.target.value)}
-                        renderValue={(selected) => {
-                            if (selected.length === 0) {
-                                return <span style={{ color: '#aaa' }}>Select Accounts</span>;  // 👈 Placeholder
-                            }
-                            return pages
-                                .filter((page) => selected.includes(page.social_id))
-                                .map((p) => p.name)
-                                .join(', ');
-                        }}
-                        sx={{
-                            height: "38px",
-                            fontSize: "12px",
-                            padding: "0px"
-                        }}
-                    >
-                        {pages.map((page) => (
-                            <MenuItem key={page.social_id} value={page.social_id}>
-                                <Checkbox checked={selectedPages.includes(page.social_id)} />
-                                <ListItemText primary={page.name} />
-                            </MenuItem>
-                        ))}
-                    </Select>
+                <Autocomplete
+                    multiple
+                    options={pages}
+                    disableCloseOnSelect
+                    getOptionLabel={(option) => option.name}
+                    value={pages.filter((page) => selectedPages.includes(page.social_id))}
+                    onChange={(event, newValue) => {
+                        setSelectedPages(newValue.map((page) => page.social_id));
+                    }}
+                    isOptionEqualToValue={(option, value) => option.social_id === value.social_id}
+                    renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                        <Checkbox
+                            style={{ marginRight: 8 }}
+                            checked={selected}
+                        />
+                        <Avatar
+                  src={option.page_info.picture.data.url}
+                  alt={option.name}
+                  sx={{ width: 20, height: 20, border: "none", marginRight: "5px" }}
+                />
+                        {option.name}
+                        </li>
+                    )}
+                    renderInput={(params) => (
+                        <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder="Select Accounts"
+                        size="small"
+                        />
+                    )}
+                    sx={{ minWidth: 250 }}
+                    />
                 </FormControl>
                 <MDButton
                   variant="outlined"
