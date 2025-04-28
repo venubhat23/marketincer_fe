@@ -21,8 +21,8 @@ import MDBox from "@/components/MDBox";
 import MDTypography from "@/components/MDTypography";
 import MDButton from "@/components/MDButton";
 
-// Billing page components
-import Invoice from "@/layouts/billing/components/Invoice";
+// Invoice page components
+import Invoice from "@/layouts/invoice/components/Invoice";
 
 function Invoices() {
   return (
