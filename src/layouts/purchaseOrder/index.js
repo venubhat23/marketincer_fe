@@ -244,7 +244,7 @@ const PurchaseOrder = () => {
     // Generate new ID and Invoice Number
     const nextId = Math.max(...invoices.map(inv => inv.id), 0) + 1;
     const paddedNumber = String(nextId).padStart(3, '0');
-    const invoiceNumber = `INV-₹{paddedNumber}`;
+    const invoiceNumber = `INV-${paddedNumber}`;
     
     const invoiceToAdd = {
       ...editedInvoice,
