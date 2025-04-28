@@ -44,7 +44,7 @@ import Media from "@/layouts/media";
 import Explore from "@/layouts/explore";
 import Analytics from "@/layouts/analytics";
 import Reporting from "@/layouts/reporting";
-import Billing from "@/layouts/billing";
+import Invoice from "@/layouts/invoice";
 import Social from "@/layouts/social";
 import AddSocialPages from "@/layouts/addSocialPages";
 import Members from "@/layouts/members";
@@ -59,6 +59,7 @@ import DataDeletion from "@/layouts/dataDeletion";
 import PrivacyPolicy from "@/layouts/privacyPolicy";
 import TermsAndConditions from "@/layouts/TermsAndConditions";
 import Home from "@/layouts/home";
+import PurchaseOrders from "@/layouts/purchaseOrder"
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -166,13 +167,13 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Post Order",
-    key: "post_order",
+    name: "Purchase Order",
+    key: "purchase_order",
     icon: <Icon fontSize="small">analytics</Icon>,
-    route: "/posts",
+    route: "/purchase-order",
     // component: <Analytics />,
-    component: <ProtectedRoute element={<Analytics />} />, // Protected
-    roles: ["brand"]
+    component: <ProtectedRoute element={<PurchaseOrders />} />, // Protected
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",
@@ -187,11 +188,11 @@ const routes = [
   {
     type: "collapse",
     name: "Invoice",
-    key: "billing",
+    key: "invoice",
     icon: <Icon fontSize="small">sell</Icon>,
-    route: "/billing",
+    route: "/invoice",
     // component: <Analytics />,
-    component: <ProtectedRoute element={<Billing />} />, // Protected
+    component: <ProtectedRoute element={<Invoice />} />, // Protected
     roles: ["admin", "influencer", "brand"]
   },
   {
