@@ -113,7 +113,7 @@ const routes = [
     route: "/explore",
     // component: <Explore />,
     component: <ProtectedRoute element={<Explore />} />, // Protected
-    roles: ["brand"]
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",
@@ -123,7 +123,7 @@ const routes = [
     route: "/analytics",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Analytics />} />, // Protected
-    roles: ["brand"]
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",
@@ -133,7 +133,7 @@ const routes = [
     route: "/contract",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Analytics />} />, // Protected
-    roles: ["brand"]
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",
@@ -143,7 +143,7 @@ const routes = [
     route: "/leads",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Reporting />} />, // Protected
-    roles: ["brand"]
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",
@@ -153,7 +153,7 @@ const routes = [
     route: "/lead_generator",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Analytics />} />, // Protected
-    roles: ["brand"]
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",
@@ -163,7 +163,7 @@ const routes = [
     route: "/posts",
     // component: <Analytics />,
     component: <ProtectedRoute element={<Analytics />} />, // Protected
-    roles: ["brand"]
+    roles: ["brand", "admin"]
   },
   {
     type: "collapse",

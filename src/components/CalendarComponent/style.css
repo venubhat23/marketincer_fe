@@ -24,7 +24,7 @@
     padding: 1px 12px;
     /* text-align: left; */
     font-weight: 500;
-    color: #495057;
+    color: #737492;
     border: none !important;
     font-size: 15px;
     }
@@ -115,8 +115,8 @@
   }
   
   .rbc-month-row.has-events {
-    min-height: 600px;
-    max-height: 600px;
+    min-height: 300px;
+    max-height: 300px;
   }
   .rbc-date-cell.rbc-off-range {
     color: #aaaaaa !important;
@@ -133,15 +133,15 @@
   }
   
   .rbc-date-cell {
-    color: #000000;
+    color: #737492;
     text-align: left;
     font-size: 12px;
-    padding: 6px 6px;
+    padding: 2px 6px;
   }
   
   .rbc-month-row .rbc-event-content {
     height: auto;
-    width: 175px;
+    width: 98%;
   }
   
   .rbc-month-view .rbc-today,
@@ -189,8 +189,11 @@
     padding: 0;
   }
   .rbc-show-more {
-    color: #000000;
+    color: #219cf3;
     margin-left: 5px;
+    font-size: 13px;
+    width: 100%;
+    text-align: center;
   }
   
   .rbc-day-slot.rbc-time-column.rbc-now.rbc-today .rbc-time-slot {
@@ -258,7 +261,7 @@
   }
   .cl-day-view .rbc-day-slot .rbc-event-content {
     max-width: 100%;
-    min-width: 200px;
+    min-width: 150px;
   }
   
   .cl-day-view .rbc-today {
@@ -266,7 +269,7 @@
   }
   
   .cl-day-view .rbc-event {
-    min-width: 200px;
+    min-width: 150px;
   }
   
   .cl-day-view .rbc-time-content > .rbc-day-slot {
@@ -319,12 +322,14 @@
     max-width: 355px;
     touch-action: none;
     transition: opactiy 330ms linear;
-    width: 162px;
+    width: 86%;
     will-change: transform;
-    margin: 10px;
+    margin: 0px 10px;
     border-radius: 10px;
     font-size: 12px;
     padding: 10px;
+    text-wrap: auto;
+    max-width: 189px;
   }
   
   .event-header {
@@ -337,15 +342,15 @@
     font-size: 10px;
   }
   .event-image-container {
-    width: 100%;
+   
     height: 50px;
     padding: 5px;
     text-align: center;
     overflow: hidden;
   }
   .event-image {
-    width: 80px;
-    height: 80px;
+    width: 40px;
+    height: 40px;
     object-fit: cover;
     margin: 5px 0;
   }
@@ -355,6 +360,8 @@
     font-size: 13px;
     color: #000000;
     margin-top: 5px;
+    height: 40px;
+    overflow: hidden;
   }
   
   .edit-button {
@@ -368,7 +375,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 1px 0px;
     border-bottom: 1px solid #eee;
   }
   
@@ -393,6 +400,7 @@
     cursor: pointer;
     font-size: 1.2rem;
     transition: all 0.2s;
+    color: #737492;
   }
   
   .nav-button:hover {
@@ -426,6 +434,7 @@
     border-radius: 4px;
     background: white;
     cursor: pointer;
+    color: #737492;
   }
 
 
@@ -472,6 +481,7 @@
   }
   .flatpickr-input[readonly] {
     visibility: hidden;
+    position: absolute;
   }
 
   .rbc-time-view .rbc-event {
@@ -495,10 +505,13 @@
     position: relative;
     height: 100%;
    
-    min-height: 60px;
+    min-height: 40px;
     z-index: 1; /* Ensure cards stay above grid */
   }
 
   .rbc-event-label {
     display: none;
   }
+ .MuiList-root .MuiButtonBase-root {
+  padding: 0px;
+ }

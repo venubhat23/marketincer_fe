@@ -221,7 +221,6 @@ const CreatePost = () => {
       social_page_id: selectedPages[0],  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
-        hashtags: "#sports #fitness",  // Static hashtags
         note: stripHtmlTags(postContent),        // ✅ Apply to postContent
         comments: stripHtmlTags(postContent),  // Use the postContent for comments as well
         brand_name: brandName,
@@ -263,7 +262,6 @@ const CreatePost = () => {
       social_page_id: selectedPages[0],  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
-        hashtags: "#sports #fitness",  // Static hashtags
         note: stripHtmlTags(postContent),        // ✅ Apply to postContent
         comments: stripHtmlTags(postContent),  
         brand_name: brandName,
