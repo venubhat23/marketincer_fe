@@ -180,7 +180,7 @@ const PurchaseOrder = () => {
 
   const fetchInvoices = async () => {
     invoices = await getPurchaseOrders()
-    // setInvoices(invoices.data);
+    setInvoices(invoices.all_invoices);
   }
 
   const handleEditInvoice = (edit, invoice={}) => {

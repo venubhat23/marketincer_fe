@@ -181,8 +181,7 @@ const InvoiceManagement = () => {
 
   const fetchInvoices = async () => {
     const invoices = await getInvoices()
-    console.log('fetchInvoices', invoices)
-    // setInvoices(invoices.data);
+    setInvoices(invoices.all_invoices);
   }
 
   const handleEditInvoice = (edit, invoice={}) => {
