@@ -44,6 +44,8 @@ import {
   updatePurchaseOrder,
   deletePurchaseOrder
 } from "@/layouts/purchaseOrder/purchaseOrderAPI"; // Import your API function to create an invoice
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Sample invoice data
 const sampleInvoices = [
@@ -178,7 +180,7 @@ const PurchaseOrder = () => {
 
   const fetchInvoices = async () => {
     invoices = await getPurchaseOrders()
-    // setInvoices(invoices.data);
+    setInvoices(invoices.all_invoices);
   }
 
   const handleEditInvoice = (edit, invoice={}) => {
@@ -282,15 +284,88 @@ const PurchaseOrder = () => {
   };
 
   const handleDownloadInvoice = (invoice) => {
-    // In a real application, this would generate a PDF
-    // For this demo, we'll just create a JSON file
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(invoice, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", `invoice-₹{invoice.invoiceNumber}.json`);
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 20; // Start vertical position
+
+    // Header: Company Info
+    doc.setFontSize(18);
+    doc.text(invoice.company_name, 20, y);
+    doc.setFontSize(11);
+    y += 8;
+    doc.text(`Website: ${invoice.company_website}`, 20, y);
+    y += 6;
+    doc.text(`GST Number: ${invoice.gst_number}`, 20, y);
+    y += 6;
+    doc.text(`Phone: ${invoice.phone_number}`, 20, y);
+    y += 6;
+    doc.text(`Email: ${invoice.work_email}`, 20, y);
+
+    // Invoice Details
+    y += 12;
+    doc.setFontSize(14);
+    doc.text("Invoice", 20, y);
+
+    doc.setFontSize(11);
+    y += 8;
+    doc.text(`Invoice Number: ${invoice.invoiceNumber}`, 20, y);
+    y += 6;
+    doc.text(`Date: ${invoice.date}`, 20, y);
+    y += 6;
+    doc.text(`Due Date: ${invoice.dueDate}`, 20, y);
+    y += 6;
+    doc.text(`Status: ${invoice.status}`, 20, y);
+
+    // Customer Info
+    y += 12;
+    doc.setFontSize(14);
+    doc.text("Bill To:", 20, y);
+    
+    doc.setFontSize(11);
+    y += 8;
+    doc.text(`Customer: ${invoice.customer}`, 20, y);
+    y += 6;
+    doc.text(`Address: ${invoice.address}`, 20, y);
+
+    // Items Table
+    y += 12;
+
+    const tableColumn = ["Item", "Qty", "Price", "Total"];
+    const tableRows = [];
+
+    invoice.items.forEach((item) => {
+      const itemTotal = item.unit_price * item.quantity;
+      const rowData = [
+        item.description,
+        item.quantity.toString(),
+        `INR ${item.unit_price}`,
+        `INR ${itemTotal}`,
+      ];
+      tableRows.push(rowData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: y,
+      theme: "striped",
+      headStyles: { fillColor: [22, 160, 133] },
+    });
+
+    // After the table, calculate Y position for totals
+    const finalY = doc.lastAutoTable.finalY + 10;
+
+    const gstAmount = (invoice.amount * invoice.gst_percentage) / 100;
+    const totalAmount = invoice.amount + gstAmount;
+
+    doc.setFontSize(13);
+    doc.text(`Subtotal: INR ${invoice.amount}`, 20, finalY);
+    doc.text(`GST (${invoice.gst_percentage}%): INR ${gstAmount}`, 20, finalY + 7);
+    doc.text(`Total: INR ${totalAmount}`, 20, finalY + 14);
+
+    // Save PDF
+    doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
   };
 
   const handleOpenAddDialog = () => {
@@ -932,7 +1007,7 @@ const PurchaseOrder = () => {
                               onClick={handleAddItem}
                               disabled={!newItem.description || newItem.quantity < 1 || newItem.rate <= 0}
                             >
-                              <AddIcon fontSize="small" />
+                              <AddIcon fontSize="small" sx={{ color: '#fff' }}/>
                             </Button>
                           </TableCell>
                         </TableRow>
