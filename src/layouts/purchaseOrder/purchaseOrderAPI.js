@@ -23,7 +23,7 @@ export const createPurchaseOrder = async (purchaseOrderData) => {
 // Read an invoice
 export const getPurchaseOrder = async (purchaseOrderId) => {
   try {
-    const response = await AxiosManager.get(`/purchase_orders/${purchaseOrderId}`);
+    const response = await AxiosManager.get(`/api/v1/purchase_orders/${purchaseOrderId}`);
     return response.data;
   } catch (error) {
     throw new Error('Failed to get purchase order');
@@ -33,7 +33,7 @@ export const getPurchaseOrder = async (purchaseOrderId) => {
 // Update an invoice
 export const updatePurchaseOrder = async (purchaseOrderId, purchaseOrderData) => {
   try {
-    const response = await AxiosManager.put(`/purchase_orders/${purchaseOrderId}`, purchaseOrderData);
+    const response = await AxiosManager.put(`/api/v1/purchase_orders/${purchaseOrderId}`, purchaseOrderData);
     return response.data;
   } catch (error) {
     throw new Error('Failed to update purchase order');
@@ -43,7 +43,7 @@ export const updatePurchaseOrder = async (purchaseOrderId, purchaseOrderData) =>
 // Delete an invoice
 export const deletePurchaseOrder = async (purchaseOrderId) => {
   try {
-    const response = await AxiosManager.delete(`/purchase_orders/${purchaseOrderId}`);
+    const response = await AxiosManager.delete(`/api/v1/purchase_orders/${purchaseOrderId}`);
     return response.data;
   } catch (error) {
     throw new Error('Failed to delete purchase order');

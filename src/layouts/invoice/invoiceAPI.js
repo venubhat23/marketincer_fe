@@ -23,7 +23,7 @@ export const createInvoice = async (invoiceData) => {
 // Read an invoice
 export const getInvoice = async (invoiceId) => {
   try {
-    const response = await AxiosManager.get(`/invoices/${invoiceId}`);
+    const response = await AxiosManager.get(`/api/v1/invoices/${invoiceId}`);
     return response.data;
   } catch (error) {
     throw new Error('Failed to get invoice');
@@ -33,7 +33,7 @@ export const getInvoice = async (invoiceId) => {
 // Update an invoice
 export const updateInvoice = async (invoiceId, invoiceData) => {
   try {
-    const response = await AxiosManager.put(`/invoices/${invoiceId}`, invoiceData);
+    const response = await AxiosManager.put(`/api/v1/invoices/${invoiceId}`, invoiceData);
     return response.data;
   } catch (error) {
     throw new Error('Failed to update invoice');
@@ -43,7 +43,7 @@ export const updateInvoice = async (invoiceId, invoiceData) => {
 // Delete an invoice
 export const deleteInvoice = async (invoiceId) => {
   try {
-    const response = await AxiosManager.delete(`/invoices/${invoiceId}`);
+    const response = await AxiosManager.delete(`/api/v1/invoices/${invoiceId}`);
     return response.data;
   } catch (error) {
     throw new Error('Failed to delete invoice');

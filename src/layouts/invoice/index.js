@@ -64,7 +64,7 @@ const sampleInvoices = [
     work_email: "owner@maheshenterprises.com",
     gst_percentage: 18.0,
     amount: 2500.00,
-    status: "paid",
+    status: "Paid",
     items: [
       { description: "Web Development", quantity: 1, unit_price: 2000, amount: 2000 },
       { description: "Hosting (Annual)", quantity: 1, unit_price: 500, amount: 500 }
@@ -85,7 +85,7 @@ const sampleInvoices = [
     work_email: "owner@maheshenterprises.com",
     gst_percentage: 18.0,
     amount: 3750.00,
-    status: "pending",
+    status: "Pending",
     items: [
       { description: "UI/UX Design", quantity: 2, unit_price: 1500, amount: 3000 },
       { description: "Logo Design", quantity: 1, unit_price: 750, amount: 750 }
@@ -106,7 +106,7 @@ const sampleInvoices = [
     work_email: "owner@maheshenterprises.com",
     gst_percentage: 18.0,
     amount: 1200.00,
-    status: "paid",
+    status: "Paid",
     items: [
       { description: "Technical Support", quantity: 4, unit_price: 300, amount: 1200 }
     ]
@@ -126,7 +126,7 @@ const sampleInvoices = [
     work_email: "owner@maheshenterprises.com",
     gst_percentage: 18.0,
     amount: 4200.00,
-    status: "pending",
+    status: "Pending",
     items: [
       { description: "Mobile App Development", quantity: 1, unit_price: 3500, amount: 3500 },
       { description: "Testing Services", quantity: 1, unit_price: 700, amount: 700 }
@@ -166,10 +166,13 @@ const InvoiceManagement = () => {
   const [editMode, setEditMode] = useState(false);
 
   // Calculate summary totals
+  invoices.forEach(invoice => {
+    invoice.amount = invoice.items.reduce((sum, item) => sum + ((item.quantity * item.unit_price)), 0);
+  });
   const totalAmount = invoices?.reduce((sum, invoice) => sum + Number(invoice.amount), 0);
-  const totalPaid = invoices?.filter(invoice => invoice.status === 'paid')
+  const totalPaid = invoices?.filter(invoice => invoice.status.toLowerCase() === 'paid')
     .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
-  const totalPending = invoices?.filter(invoice => invoice.status === 'pending')
+  const totalPending = invoices?.filter(invoice => invoice.status.toLowerCase() === 'pending')
     .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
 
   const handleViewInvoice = (invoice) => {
@@ -190,7 +193,7 @@ const InvoiceManagement = () => {
         date: new Date(created_at).toISOString().split('T')[0],
         invoiceNumber: `INV-${String(id)}`,
         id: id,
-        items: Object.keys(line_items).length === 0 ? [] : [line_items]
+        items: line_items
       };
     });
     console.log("Fetched Invoices: ", invoiceData);
@@ -372,11 +375,12 @@ const InvoiceManagement = () => {
     // After the table, calculate Y position for totals
     const finalY = doc.lastAutoTable.finalY + 10;
 
-    const gstAmount = (invoice.amount * invoice.gst_percentage) / 100;
-    const totalAmount = Number(invoice.amount) + Number(gstAmount);
+    const subAmount = (invoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0)).toFixed(2)
+    const gstAmount = (subAmount * invoice.gst_percentage) / 100;
+    const totalAmount = Number(subAmount) + Number(gstAmount);
 
     doc.setFontSize(12);
-    doc.text(`Subtotal: INR ${invoice.amount}`, 20, finalY);
+    doc.text(`Subtotal: INR ${subAmount}`, 20, finalY);
     doc.text(`GST (${invoice.gst_percentage}%): INR ${gstAmount}`, 20, finalY + 7);
     doc.text(`Total: INR ${totalAmount}`, 20, finalY + 14);
 
@@ -444,6 +448,7 @@ const InvoiceManagement = () => {
     const calculatedAmount = newItem.quantity * newItem.unit_price;
     const updatedItems = [...editedInvoice.items, {...newItem, amount: calculatedAmount}];
     const newTotalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
+    console.log("New Item: ", newItem, updatedItems, newTotalAmount, calculatedAmount);
     
     setEditedInvoice({
       ...editedInvoice,
@@ -607,13 +612,13 @@ const InvoiceManagement = () => {
                         <TableCell sx={dataCellStyle}>{invoice.customer}</TableCell>
                         <TableCell sx={dataCellStyle}>{invoice.date}</TableCell>
                         <TableCell sx={dataCellStyle}>{invoice.due_date}</TableCell>
-                        <TableCell align="right" sx={dataCellStyle}>₹{Number(invoice.amount).toFixed(2)}</TableCell>
+                        <TableCell align="right" sx={dataCellStyle}>₹{Number((invoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0) + (invoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0) * invoice.gst_percentage / 100)).toFixed(2)).toFixed(2)}</TableCell>
                         <TableCell sx={dataCellStyle}>
                           <Chip 
                             label={invoice.status.toUpperCase()} 
-                            color={invoice.status === 'paid' ? 'success' : 'warning'} 
+                            color={invoice.status === 'Paid' ? 'success' : 'warning'} 
                             size="small"
-                            sx={invoice.status === 'paid' ? {
+                            sx={invoice.status === 'Paid' ? {
                               backgroundColor: 'rgba(76, 175, 80, 0.2)',
                               color: '#4CAF50',
                               fontWeight: 400,
@@ -718,29 +723,29 @@ const InvoiceManagement = () => {
                           <TableRow key={index}>
                             <TableCell>{item.description}</TableCell>
                             <TableCell align="right">{item.quantity}</TableCell>
-                            <TableCell align="right">₹{item.unit_price.toFixed(2)}</TableCell>
-                            <TableCell align="right">₹{item.amount.toFixed(2)}</TableCell>
+                            <TableCell align="right">₹{item.unit_price?.toFixed(2)}</TableCell>
+                            <TableCell align="right">₹{(item.quantity * item.unit_price)?.toFixed(2)}</TableCell>
                           </TableRow>
                         ))}
                         <TableRow>
                           <TableCell colSpan={2} />
                           <TableCell align="right">Subtotal:</TableCell>
                           <TableCell align="right">
-                            ₹{selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}
+                            ₹{selectedInvoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0).toFixed(2)}
                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={2} />
                           <TableCell align="right">GST ({selectedInvoice.gst_percentage}%):</TableCell>
                           <TableCell align="right">
-                            ₹{(selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0) * selectedInvoice.gst_percentage / 100).toFixed(2)}
+                            ₹{(selectedInvoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0) * selectedInvoice.gst_percentage / 100).toFixed(2)}
                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={2} />
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>Total:</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                            ₹{(selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0) + (selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0) * selectedInvoice.gst_percentage / 100)).toFixed(2)}
+                            ₹{(selectedInvoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0) + (selectedInvoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0) * selectedInvoice.gst_percentage / 100)).toFixed(2)}
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -753,9 +758,9 @@ const InvoiceManagement = () => {
                     Status: 
                     <Chip 
                       label={selectedInvoice.status} 
-                      color={selectedInvoice.status === 'paid' ? 'success' : 'warning'} 
+                      color={selectedInvoice.status === 'Paid' ? 'success' : 'warning'} 
                       size="small"
-                      sx={selectedInvoice.status === 'paid' ? {
+                      sx={selectedInvoice.status === 'Paid' ? {
                         backgroundColor: 'rgba(76, 175, 80, 0.2)',
                         color: '#4CAF50',
                         fontWeight: 400,
@@ -927,13 +932,13 @@ const InvoiceManagement = () => {
                       <InputLabel>Status</InputLabel>
                       <Select
                         name="status"
-                        value={editedInvoice.status}
+                        value={editedInvoice.status.toLowerCase() == "paid"? "Paid" : "Pending"}
                         label="Status"
                         onChange={handleChangeEditedInvoice}
                         sx={{ padding: '0.75rem 0' }}
                       >
-                        <MenuItem value="paid">Paid</MenuItem>
-                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="Paid">Paid</MenuItem>
+                        <MenuItem value="Pending">Pending</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -983,7 +988,7 @@ const InvoiceManagement = () => {
                               />
                             </TableCell>
                             <TableCell align="right">
-                              ₹{item.amount.toFixed(2)}
+                              ₹{(item.quantity * item.unit_price)?.toFixed(2)}
                             </TableCell>
                             <TableCell>
                               <IconButton size="small" onClick={() => handleRemoveItem(index)}>
@@ -1026,7 +1031,7 @@ const InvoiceManagement = () => {
                             />
                           </TableCell>
                           <TableCell align="right">
-                            ₹{newItem.amount.toFixed(2)}
+                            ₹{(newItem.quantity * newItem.unit_price).toFixed(2)}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -1043,7 +1048,7 @@ const InvoiceManagement = () => {
                         <TableRow>
                           <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>Total:</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                            ₹{Number(editedInvoice?.amount).toFixed(2)}
+                            ₹{Number(editedInvoice.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0)).toFixed(2)}
                           </TableCell>
                           <TableCell></TableCell>
                         </TableRow>
