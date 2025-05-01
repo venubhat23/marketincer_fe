@@ -137,7 +137,7 @@ const sampleInvoices = [
 const InvoiceManagement = () => {
   const userData = localStorage.getItem('userData')
   const userInfo = userData ? JSON.parse(userData) : {};
-  const [invoices, setInvoices] = useState(sampleInvoices);
+  const [invoices, setInvoices] = useState([]);
   const [openViewDialog, setOpenViewDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -593,47 +593,57 @@ const InvoiceManagement = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {invoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
-                    <TableCell sx={dataCellStyle}>{invoice.invoiceNumber}</TableCell>
-                    <TableCell sx={dataCellStyle}>{invoice.customer}</TableCell>
-                    <TableCell sx={dataCellStyle}>{invoice.date}</TableCell>
-                    <TableCell sx={dataCellStyle}>{invoice.due_date}</TableCell>
-                    <TableCell align="right" sx={dataCellStyle}>₹{Number(invoice.amount).toFixed(2)}</TableCell>
-                    <TableCell sx={dataCellStyle}>
-                      <Chip 
-                        label={invoice.status.toUpperCase()} 
-                        color={invoice.status === 'paid' ? 'success' : 'warning'} 
-                        size="small"
-                        sx={invoice.status === 'paid' ? {
-                          backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                          color: '#4CAF50',
-                          fontWeight: 400,
-                          ml: 1
-                        } : { 
-                          backgroundColor: 'rgba(251, 140, 0, 0.2)',
-                          color: '#fb8c00',
-                          fontWeight: 400,
-                          ml: 1
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell align="center" sx={dataCellStyle}>
-                      <IconButton size="small" onClick={() => handleViewInvoice(invoice)}>
-                        <ViewIcon />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => handleEditInvoice(true, invoice)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => handleDownloadInvoice(invoice)}>
-                        <DownloadIcon />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => handleDeleteInvoice(invoice.id)}>
-                        <DeleteIcon />
-                      </IconButton>
+                {invoices.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={2} align="center">
+                      No Invoice available
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  <>
+                    {invoices.map((invoice) => (
+                      <TableRow key={invoice.id}>
+                        <TableCell sx={dataCellStyle}>{invoice.invoiceNumber}</TableCell>
+                        <TableCell sx={dataCellStyle}>{invoice.customer}</TableCell>
+                        <TableCell sx={dataCellStyle}>{invoice.date}</TableCell>
+                        <TableCell sx={dataCellStyle}>{invoice.due_date}</TableCell>
+                        <TableCell align="right" sx={dataCellStyle}>₹{Number(invoice.amount).toFixed(2)}</TableCell>
+                        <TableCell sx={dataCellStyle}>
+                          <Chip 
+                            label={invoice.status.toUpperCase()} 
+                            color={invoice.status === 'paid' ? 'success' : 'warning'} 
+                            size="small"
+                            sx={invoice.status === 'paid' ? {
+                              backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                              color: '#4CAF50',
+                              fontWeight: 400,
+                              ml: 1
+                            } : { 
+                              backgroundColor: 'rgba(251, 140, 0, 0.2)',
+                              color: '#fb8c00',
+                              fontWeight: 400,
+                              ml: 1
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="center" sx={dataCellStyle}>
+                          <IconButton size="small" onClick={() => handleViewInvoice(invoice)}>
+                            <ViewIcon />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => handleEditInvoice(true, invoice)}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => handleDownloadInvoice(invoice)}>
+                            <DownloadIcon />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => handleDeleteInvoice(invoice.id)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
