@@ -54,7 +54,7 @@ const sampleInvoices = [
     invoiceNumber: "PO-001",
     customer: "Acme Corp",
     date: "2025-04-15",
-    dueDate: "2025-05-15",
+    due_date: "2025-05-15",
     company_name: "Mahesh Enterprises",
     gst_number: "29ABCDE1234F1Z5",
     phone_number: "9876543210",
@@ -75,7 +75,7 @@ const sampleInvoices = [
     invoiceNumber: "PO-002",
     customer: "XYZ Industries",
     date: "2025-04-10",
-    dueDate: "2025-05-10",
+    due_date: "2025-05-10",
     company_name: "Mahesh Enterprises",
     gst_number: "29ABCDE1234F1Z5",
     phone_number: "9876543210",
@@ -96,7 +96,7 @@ const sampleInvoices = [
     invoiceNumber: "PO-003",
     customer: "ABC Solutions",
     date: "2025-03-25",
-    dueDate: "2025-04-25",
+    due_date: "2025-04-25",
     company_name: "Mahesh Enterprises",
     gst_number: "29ABCDE1234F1Z5",
     phone_number: "9876543210",
@@ -116,7 +116,7 @@ const sampleInvoices = [
     invoiceNumber: "PO-004",
     customer: "Global Tech",
     date: "2025-04-05",
-    dueDate: "2025-05-05",
+    due_date: "2025-05-05",
     company_name: "Mahesh Enterprises",
     gst_number: "29ABCDE1234F1Z5",
     phone_number: "9876543210",
@@ -157,7 +157,7 @@ const PurchaseOrder = () => {
     company_website: userInfo['company_website'],
     customer: '',
     date: new Date().toISOString().split('T')[0],
-    dueDate: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+    due_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
     amount: 0,
     status: 'pending',
     items: []
@@ -165,13 +165,11 @@ const PurchaseOrder = () => {
   const [editMode, setEditMode] = useState(false);
 
   // Calculate summary totals
-  const totalAmount = invoices.reduce((sum, invoice) => sum + invoice.amount, 0);
-  const totalPaid = invoices
-    .filter(invoice => invoice.status === 'paid')
-    .reduce((sum, invoice) => sum + invoice.amount, 0);
-  const totalPending = invoices
-    .filter(invoice => invoice.status === 'pending')
-    .reduce((sum, invoice) => sum + invoice.amount, 0);
+  const totalAmount = invoices?.reduce((sum, invoice) => sum + Number(invoice.amount), 0);
+  const totalPaid = invoices?.filter(invoice => invoice.status === 'paid')
+    .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
+  const totalPending = invoices?.filter(invoice => invoice.status === 'pending')
+    .reduce((sum, invoice) => sum + Number(invoice.amount), 0);
 
   const handleViewInvoice = (invoice) => {
     setSelectedInvoice(invoice);
@@ -180,7 +178,22 @@ const PurchaseOrder = () => {
 
   const fetchInvoices = async () => {
     invoices = await getPurchaseOrders()
-    setInvoices(invoices.all_invoices);
+    let invoiceData = invoices.all_invoices
+  
+    // To replace key name
+    invoiceData = invoiceData.map(obj => {
+      const { id, total_amount, created_at, line_items, ...rest } = obj;
+      return {
+        ...rest,
+        amount: total_amount,
+        date: new Date(created_at).toISOString().split('T')[0],
+        invoiceNumber: `INV-${String(id)}`,
+        id: id,
+        items: Object.keys(line_items).length === 0 ? [] : [line_items]
+      };
+    });
+    console.log("Fetched Invoices: ", invoiceData);
+    setInvoices(invoiceData);
   }
 
   const handleEditInvoice = (edit, invoice={}) => {
@@ -214,7 +227,7 @@ const PurchaseOrder = () => {
       invoiceNumber: '',
       customer: '',
       date: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+      due_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
       amount: 0,
       status: 'pending',
       items: []
@@ -234,7 +247,7 @@ const PurchaseOrder = () => {
 
     const exemptedAttributes = ["date", "items"];
     const payload = Object.fromEntries(
-      Object.entries(updatedInvoice).filter(([key]) => !exemptedAttributes.includes(key))
+      Object.entries(updatedInvoice)?.filter(([key]) => !exemptedAttributes.includes(key))
     );
     updatePurchaseOrder(editedInvoice.id, {"purchase_order": payload})
 
@@ -257,7 +270,7 @@ const PurchaseOrder = () => {
     
     const exemptedAttributes = ["id", "invoiceNumber", "date", "items"];
     const payload = Object.fromEntries(
-      Object.entries(invoiceToAdd).filter(([key]) => !exemptedAttributes.includes(key))
+      Object.entries(invoiceToAdd)?.filter(([key]) => !exemptedAttributes.includes(key))
     );
     createPurchaseOrder({"purchase_order": payload})
     
@@ -270,7 +283,7 @@ const PurchaseOrder = () => {
       invoiceNumber: '',
       customer: '',
       date: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+      due_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
       amount: 0,
       status: 'pending',
       items: []
@@ -278,7 +291,8 @@ const PurchaseOrder = () => {
   };
 
   const handleDeleteInvoice = (id) => {
-    const updatedInvoices = invoices.filter(invoice => invoice.id !== id);
+    const updatedInvoices = invoices?.filter(invoice => invoice.id !== id);
+    console.log("Updated Invoices: ", updatedInvoices, id);
     deletePurchaseOrder(id)
     setInvoices(updatedInvoices);
   };
@@ -313,7 +327,7 @@ const PurchaseOrder = () => {
     y += 6;
     doc.text(`Date: ${invoice.date}`, 20, y);
     y += 6;
-    doc.text(`Due Date: ${invoice.dueDate}`, 20, y);
+    doc.text(`Due Date: ${invoice.due_date}`, 20, y);
     y += 6;
     doc.text(`Status: ${invoice.status}`, 20, y);
 
@@ -348,6 +362,7 @@ const PurchaseOrder = () => {
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
+      margin: { left: 20 },
       startY: y,
       theme: "striped",
       headStyles: { fillColor: [22, 160, 133] },
@@ -357,9 +372,9 @@ const PurchaseOrder = () => {
     const finalY = doc.lastAutoTable.finalY + 10;
 
     const gstAmount = (invoice.amount * invoice.gst_percentage) / 100;
-    const totalAmount = invoice.amount + gstAmount;
+    const totalAmount = Number(invoice.amount) + Number(gstAmount);
 
-    doc.setFontSize(13);
+    doc.setFontSize(12);
     doc.text(`Subtotal: INR ${invoice.amount}`, 20, finalY);
     doc.text(`GST (${invoice.gst_percentage}%): INR ${gstAmount}`, 20, finalY + 7);
     doc.text(`Total: INR ${totalAmount}`, 20, finalY + 14);
@@ -396,7 +411,7 @@ const PurchaseOrder = () => {
     }
     
     // Update invoice with new items and recalculate total amount
-    const totalAmount = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    const totalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
     
     setEditedInvoice({
       ...editedInvoice,
@@ -415,7 +430,7 @@ const PurchaseOrder = () => {
     }
     
     // Update invoice with new items and recalculate total amount
-    const totalAmount = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    const totalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
     
     setNewInvoice({
       ...newInvoice,
@@ -427,7 +442,7 @@ const PurchaseOrder = () => {
   const handleAddItem = () => {
     const calculatedAmount = newItem.quantity * newItem.unit_price;
     const updatedItems = [...editedInvoice.items, {...newItem, amount: calculatedAmount}];
-    const newTotalAmount = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    const newTotalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
     
     setEditedInvoice({
       ...editedInvoice,
@@ -441,7 +456,7 @@ const PurchaseOrder = () => {
   const handleAddNewInvoiceItem = () => {
     const calculatedAmount = newItem.quantity * newItem.unit_price;
     const updatedItems = [...newInvoice.items, {...newItem, amount: calculatedAmount}];
-    const newTotalAmount = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    const newTotalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
     
     setNewInvoice({
       ...newInvoice,
@@ -453,8 +468,8 @@ const PurchaseOrder = () => {
   };
 
   const handleRemoveItem = (index) => {
-    const updatedItems = editedInvoice.items.filter((_, i) => i !== index);
-    const newTotalAmount = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    const updatedItems = editedInvoice.items?.filter((_, i) => i !== index);
+    const newTotalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
     
     setEditedInvoice({
       ...editedInvoice,
@@ -464,8 +479,8 @@ const PurchaseOrder = () => {
   };
 
   const handleRemoveNewInvoiceItem = (index) => {
-    const updatedItems = newInvoice.items.filter((_, i) => i !== index);
-    const newTotalAmount = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    const updatedItems = newInvoice.items?.filter((_, i) => i !== index);
+    const newTotalAmount = updatedItems?.reduce((sum, item) => sum + item.amount, 0);
     
     setNewInvoice({
       ...newInvoice,
@@ -581,8 +596,8 @@ const PurchaseOrder = () => {
                     <TableCell sx={dataCellStyle}>{invoice.invoiceNumber}</TableCell>
                     <TableCell sx={dataCellStyle}>{invoice.customer}</TableCell>
                     <TableCell sx={dataCellStyle}>{invoice.date}</TableCell>
-                    <TableCell sx={dataCellStyle}>{invoice.dueDate}</TableCell>
-                    <TableCell align="right" sx={dataCellStyle}>₹{invoice.amount.toFixed(2)}</TableCell>
+                    <TableCell sx={dataCellStyle}>{invoice.due_date}</TableCell>
+                    <TableCell align="right" sx={dataCellStyle}>₹{Number(invoice.amount).toFixed(2)}</TableCell>
                     <TableCell sx={dataCellStyle}>
                       <Chip 
                         label={invoice.status.toUpperCase()} 
@@ -668,7 +683,7 @@ const PurchaseOrder = () => {
                   </Grid>
                   <Grid item xs={12} md={3}>
                     <Typography variant="button">Due Date:</Typography>
-                    <Typography variant="h6">{selectedInvoice.dueDate}</Typography>
+                    <Typography variant="h6">{selectedInvoice.due_date}</Typography>
                   </Grid>
                 </Grid>
                 
@@ -697,21 +712,21 @@ const PurchaseOrder = () => {
                           <TableCell colSpan={2} />
                           <TableCell align="right">Subtotal:</TableCell>
                           <TableCell align="right">
-                            ₹{selectedInvoice.items.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}
+                            ₹{selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0).toFixed(2)}
                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={2} />
                           <TableCell align="right">GST ({selectedInvoice.gst_percentage}%):</TableCell>
                           <TableCell align="right">
-                            ₹{(selectedInvoice.items.reduce((sum, item) => sum + item.amount, 0) * selectedInvoice.gst_percentage / 100).toFixed(2)}
+                            ₹{(selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0) * selectedInvoice.gst_percentage / 100).toFixed(2)}
                           </TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell colSpan={2} />
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>Total:</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                            ₹{(selectedInvoice.items.reduce((sum, item) => sum + item.amount, 0) + (selectedInvoice.items.reduce((sum, item) => sum + item.amount, 0) * selectedInvoice.gst_percentage / 100)).toFixed(2)}
+                            ₹{(selectedInvoice.items?.reduce((sum, item) => sum + item.amount, 0) + (selectedInvoice.items.reduce((sum, item) => sum + item.amount, 0) * selectedInvoice.gst_percentage / 100)).toFixed(2)}
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -887,8 +902,8 @@ const PurchaseOrder = () => {
                       label="Due Date"
                       type="date"
                       fullWidth
-                      name="dueDate"
-                      value={editedInvoice.dueDate}
+                      name="due_date"
+                      value={editedInvoice.due_date}
                       onChange={handleChangeEditedInvoice}
                       InputLabelProps={{ shrink: true }}
                     />
@@ -1014,7 +1029,7 @@ const PurchaseOrder = () => {
                         <TableRow>
                           <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>Total:</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                            ₹{editedInvoice.amount.toFixed(2)}
+                            ₹{Number(editedInvoice?.amount).toFixed(2)}
                           </TableCell>
                           <TableCell></TableCell>
                         </TableRow>
