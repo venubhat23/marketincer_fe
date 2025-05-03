@@ -167,6 +167,16 @@ const Index = () => {
     }
   };
 
+  const handleLinkedinRedirect = () => {
+    const clientId = '77ufne14jzxbbc';
+    const redirectUri = encodeURIComponent('http://localhost:5173/social-pages');
+    const state = 'WPL_AP1.Q1h1nSOAtOfOgsNL.9zPzwA=='; // Should be random & stored for verification
+    const scope = 'openid profile email w_member_social';
+
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${encodeURIComponent(scope)}`;
+    window.location.href = authUrl;
+  };
+
  
   const socialMediaPlatforms = [
     { name: "Facebook", icon: <FacebookIcon fontSize="large" />, color: "#1877F2", onClick: () => setOpenInstaNoticeModal(true) },
@@ -175,7 +185,8 @@ const Index = () => {
     { name: "Pinterest", icon: <PinterestIcon fontSize="large" />, color: "#cb2935", onClick: () => { } },
     { name: "YouTube", icon: <YouTubeIcon fontSize="large" />, color: "red", onClick: () => { } },
     { name: "Google", icon: <GoogleIcon fontSize="large" />, color: "#4285F4", onClick: () => { } },
-    { name: "Telegram", icon: <TelegramIcon fontSize="large" />, color: "#0088cc", onClick: () => { } }
+    { name: "Telegram", icon: <TelegramIcon fontSize="large" />, color: "#0088cc", onClick: () => { } },
+    { name: "Linkedin", icon: <LinkedInIcon fontSize="large" />, color: "#0088cc", onClick: () => handleLinkedinRedirect() }
   ];
 
 
