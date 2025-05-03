@@ -1039,6 +1039,7 @@ const InvoiceManagement = () => {
                               size="small"
                               color="primary"
                               onClick={handleAddItem}
+                              sx={!newItem.description || newItem.quantity < 1 || newItem.rate <= 0 ? { backgroundColor: '#808080!important' } : {}}
                               disabled={!newItem.description || newItem.quantity < 1 || newItem.rate <= 0}
                             >
                               <AddIcon fontSize="small" sx={{ color: '#fff' }}/>
