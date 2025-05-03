@@ -182,7 +182,7 @@ const PurchaseOrders = () => {
 
   const fetchInvoices = async () => {
     const invoices = await getPurchaseOrders()
-    let invoiceData = invoices.all_invoices
+    let invoiceData = invoices.purchase_orders
   
     // To replace key name
     invoiceData = invoiceData.map(obj => {
@@ -253,7 +253,7 @@ const PurchaseOrders = () => {
     const payload = Object.fromEntries(
       Object.entries(updatedInvoice)?.filter(([key]) => !exemptedAttributes.includes(key))
     );
-    updatePurchaseOrder(editedInvoice.id, {"invoice": payload})
+    updatePurchaseOrder(editedInvoice.id, {"purchase_order": payload})
 
     setInvoices(updatedInvoices);
     setOpenEditDialog(false);
@@ -276,7 +276,7 @@ const PurchaseOrders = () => {
     const payload = Object.fromEntries(
       Object.entries(invoiceToAdd)?.filter(([key]) => !exemptedAttributes.includes(key))
     );
-    createPurchaseOrder({"invoice": payload})
+    createPurchaseOrder({"purchase_order": payload})
     
     setInvoices([...invoices, invoiceToAdd]);
     setOpenEditDialog(false);
@@ -1039,6 +1039,7 @@ const PurchaseOrders = () => {
                               size="small"
                               color="primary"
                               onClick={handleAddItem}
+                              sx={!newItem.description || newItem.quantity < 1 || newItem.rate <= 0 ? { backgroundColor: '#808080!important' } : {}}
                               disabled={!newItem.description || newItem.quantity < 1 || newItem.rate <= 0}
                             >
                               <AddIcon fontSize="small" sx={{ color: '#fff' }}/>
