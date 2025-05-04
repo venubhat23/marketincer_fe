@@ -555,9 +555,12 @@ const Index = () => {
                 <Typography sx={{
                   fontSize: "14px",
                   color: "#373737",
-                  paddingTop: "20px",
+                  padding: "20px",
+                  border: "1px solid #ddd",
+                  margin: "20px 0",
                 }}>
                   {linkedinAccounts["name"]}
+                  <span style={{ "color": "green", "fontWeight": 700, "float": "right" }}>Connected</span>
                 </Typography>           
               </Box>
               <Box
