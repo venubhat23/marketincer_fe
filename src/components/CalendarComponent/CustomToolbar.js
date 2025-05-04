@@ -153,7 +153,7 @@ const CustomToolbar = ({
                             checked={selected}
                         />
                         <Avatar
-                  src={option.page_info.picture.data.url}
+                  src={option.page_info?.picture?.data?.url}
                   alt={option.name}
                   sx={{ width: 20, height: 20, border: "none", marginRight: "5px" }}
                 />

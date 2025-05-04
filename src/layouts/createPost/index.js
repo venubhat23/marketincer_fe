@@ -373,7 +373,7 @@ const CreatePost = () => {
               <Box sx={{ position: "relative" }}>
                 {/* Avatar */}
                 <Avatar
-                  src={page.page_info?.picture?.data.url}
+                  src={page.page_info?.picture?.data?.url}
                   alt={page.name}
                   sx={{ width: 40, height: 40, border: "none" }}
                 />
