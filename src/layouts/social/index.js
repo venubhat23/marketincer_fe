@@ -185,7 +185,7 @@ const Index = () => {
                     {pages.map((page, index) => (
                       <Box key={index} sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
                         <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-                          <Avatar sx={{ marginRight: "10px" }} src={page.page_info.picture.data.url}>{page.icon}</Avatar>
+                          <Avatar sx={{ marginRight: "10px" }} src={page.page_info?.picture?.data?.url}>{page.icon}</Avatar>
                           <Box>
                             <Typography variant="body1" sx={{ fontSize: "12px", fontWeight: "700" }}>{page.name}</Typography>
                             <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px" }}>
