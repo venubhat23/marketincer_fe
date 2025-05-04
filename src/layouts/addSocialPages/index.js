@@ -390,7 +390,7 @@ const Index = () => {
                     }}
                   >
                     <img
-                      src={account.user.picture.data.url}
+                      src={account?.user?.picture?.data?.url}
                       alt={account.name}
                       style={{
                         borderRadius: "50%",
