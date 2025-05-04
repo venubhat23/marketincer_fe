@@ -36,6 +36,7 @@ const Index = () => {
       );
 
       const data = await response.json();
+      console.log("Accounts API Response:", data);
       setPages(data.data.accounts); // Store the fetched accounts in the state
 
 
@@ -182,7 +183,7 @@ const Index = () => {
                   </Box>
                 </>) : (
                   <>
-                    {pages.map((page, index) => (
+                    {pages.filter(acc => acc.page_type != "linkedin").map((page, index) => (
                       <Box key={index} sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
                         <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
                           <Avatar sx={{ marginRight: "10px" }} src={page.page_info?.picture?.data?.url}>{page.icon}</Avatar>
@@ -333,7 +334,32 @@ const Index = () => {
                   </Box>
                 </>) : (
                   <>
+                    {pages.filter(acc => acc.page_type == "linkedin").map((page, index) => (
+                      <Box key={index} sx={{ display: "flex", alignItems: "center", marginBottom: "10px", width: "calc(25% - 10px)", border: "1px solid #e5e6eb", padding: "10px", borderRadius: "6px" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+                          <Avatar sx={{ marginRight: "10px" }} src={page.page_info?.picture?.data?.url}>{page.icon}</Avatar>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontSize: "12px", fontWeight: "700" }}>{page.name}</Typography>
+                            {/* <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px" }}>
+                              {page.username}
+                            </Typography> */}
+                            <Typography variant="body2" color="textSecondary" sx={{ fontSize: "12px", color: "#00be4e" }}>
+                              Active
+                            </Typography>
+                          </Box>
+                        </Box>
 
+                        <MDButton
+                          variant="outlined"
+                          color="info"
+                          size="small"
+                          sx={{ padding: "5px", mb: 2, fontSize: "12px", marginLeft: "auto" }}
+                          onClick={() => { handleDisConnect(page) }}
+                        >
+                          Disconnect
+                        </MDButton>
+                      </Box>
+                    ))}
                   </>
                 )}
 

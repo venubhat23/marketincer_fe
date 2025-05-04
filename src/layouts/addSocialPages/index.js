@@ -39,10 +39,12 @@ const LINKEDIN_CRED = {
 
 const Index = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [linkedinOpenModal, setLinkedinOpenModal] = useState(false);
   const [openInstaNoticeModal, setOpenInstaNoticeModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pages, setPages] = useState([]);
   const [instagramAccounts, setInstagramAccounts] = useState([]);
+  const [linkedinAccounts, setLinkedinAccounts] = useState({});
   const [gettingPage, setGettingPage] = useState(false);
     const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = () => setSuccessSB(true);
@@ -66,7 +68,10 @@ const Index = () => {
       if (code) {
         if(authState == LINKEDIN_CRED.state) {
           console.log("LinkedIn auth code:", code);
-          await fetchLinkedInProfile(code, LINKEDIN_CRED.redirectUri);
+          let response = await fetchLinkedInProfile(code, LINKEDIN_CRED.redirectUri);
+          setLinkedinOpenModal(true);
+          console.log("LinkedIn response:", response);
+          setLinkedinAccounts(response.user_profile)
         } else {
           // Step 1: Exchange the code for a short-lived access token
           const tokenResponse = await fetch(
@@ -125,6 +130,7 @@ const Index = () => {
       );
   
       const data = await response.json();
+      console.log("Fetched accounts:", data);
       setPages(data.data.accounts);
       setOpenModal(true);
   
@@ -491,7 +497,102 @@ const Index = () => {
         </Box>
       </Modal>
 
+      {/* Modal for Showing Pages & Instagram Accounts */}
+      <Modal open={linkedinOpenModal} onClose={() => setLinkedinOpenModal(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 450,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "10px",
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            paddingTop: "15px",
+            paddingBottom: "3px"
+          }}
+        >
+          {/* Close Button */}
+          <IconButton
+            onClick={() => setOpenModal(false)}  // Close the modal on click
+            sx={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              color: "#888",  // Light gray color for the close button
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
 
+
+          <Box
+            sx={{
+              display: "flex",
+            }}
+          >
+            <LinkedInIcon fontSize="large" sx={{ color: "#1778f4" }} />
+            <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: 'center', marginTop: "5px" }}>
+              LinkedIn
+            </Typography>
+          </Box>
+
+          <Divider sx={{ margin: 0, width: "100%", backgroundColor: "#bbbbbb" }} />
+
+          {loading ? (
+            <CircularProgress sx={{ 'margin': '50px auto' }}/>
+          ) : (
+            <>
+
+              <Box sx={{ margin: 0, width: "100%", }} >
+                <Typography sx={{
+                  fontSize: "14px",
+                  color: "#373737",
+                  paddingTop: "20px",
+                }}>
+                  {linkedinAccounts["name"]}
+                </Typography>           
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end", // ✅ Aligns buttons to the right
+                  alignItems: "center",
+                  gap: "1rem",
+                  width: "100%", // Prevents overflow
+                }}
+              >
+
+                <MDButton
+                  variant="gradient"
+                  sx={{
+                    margin: "0.09375rem 1px",
+                    mb: 2,
+                    backgroundColor: "#01cbc6 !important", // Ensures background color applies
+                    color: "white !important", // ✅ Forces white text
+                    "&:hover": {
+                      backgroundColor: "#00b3ad !important", // Slightly darker on hover
+                    },
+                  }}
+                  onClick={() => {
+                    window.location.href = "/social-pages";
+                  }}
+                >
+                  Continue
+                </MDButton>
+              </Box>
+
+            </>
+          )}
+        </Box>
+      </Modal>
 
       {/* Modal for Showing Pages & Instagram Accounts */}
       <Modal open={openInstaNoticeModal} onClose={() => setOpenInstaNoticeModal(false)}>
