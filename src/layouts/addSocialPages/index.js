@@ -19,6 +19,7 @@ import Divider from "@mui/material/Divider";
 // Material Dashboard 2 React components
 import MDInput from "@/components/MDInput";
 import MDSnackbar from "@/components/MDSnackbar";
+import fetchLinkedInProfile from "./socialPagesAPI";
 
 const FACEBOOK_APP_ID = "499798672825129";
 const FACEBOOK_APP_SECRET = "0972b471f1d251f8db7762be1db4613c";
@@ -28,6 +29,13 @@ const REDIRECT_URI = "https://www.marketincer.com/social";
 // const REDIRECT_URI = "https://marketincerfe.kukus.in/social";
 
 // const REDIRECT_URI = "https://www.marketincer.com/social";
+const LINKEDIN_CRED = {
+  clientId: "77ufne14jzxbbc",
+  clientSecret: "k0a1Jt5K0iZx7l7Y",
+  redirectUri: "http://localhost:5173/social",
+  scope: "openid profile email w_member_social",
+  state: "marketincer-linkedin", // Should be random & stored for verification
+}
 
 const Index = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -44,43 +52,49 @@ const Index = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get("code");
+    const authState = urlParams.get("state");
 
     if (authCode) {
-      fetchAccessToken(authCode);
+      fetchAccessToken(authCode, authState);
     }
   }, []);
 
-  const fetchAccessToken = async (code) => {
+  const fetchAccessToken = async (code, authState='') => {
     setLoading(true);
 
     try {
       if (code) {
-        // Step 1: Exchange the code for a short-lived access token
-        const tokenResponse = await fetch(
-          `https://graph.facebook.com/v17.0/oauth/access_token?client_id=${FACEBOOK_APP_ID}&client_secret=${FACEBOOK_APP_SECRET}&redirect_uri=${REDIRECT_URI}&code=${code}`
-        );
-        const tokenData = await tokenResponse.json();
-
-        const shortLivedToken = tokenData.access_token;
-        if (shortLivedToken) {
-          // Step 2: Exchange the short-lived token for a long-lived token
-          const longTokenResponse = await fetch(
-            `https://graph.facebook.com/v17.0/oauth/access_token?client_id=${FACEBOOK_APP_ID}&client_secret=${FACEBOOK_APP_SECRET}&grant_type=fb_exchange_token&fb_exchange_token=${shortLivedToken}`
+        if(authState == LINKEDIN_CRED.state) {
+          console.log("LinkedIn auth code:", code);
+          await fetchLinkedInProfile(code, LINKEDIN_CRED.redirectUri);
+        } else {
+          // Step 1: Exchange the code for a short-lived access token
+          const tokenResponse = await fetch(
+            `https://graph.facebook.com/v17.0/oauth/access_token?client_id=${FACEBOOK_APP_ID}&client_secret=${FACEBOOK_APP_SECRET}&redirect_uri=${REDIRECT_URI}&code=${code}`
           );
-          const longTokenData = await longTokenResponse.json();
+          const tokenData = await tokenResponse.json();
 
-          const longLivedToken = longTokenData.access_token;
+          const shortLivedToken = tokenData.access_token;
+          if (shortLivedToken) {
+            // Step 2: Exchange the short-lived token for a long-lived token
+            const longTokenResponse = await fetch(
+              `https://graph.facebook.com/v17.0/oauth/access_token?client_id=${FACEBOOK_APP_ID}&client_secret=${FACEBOOK_APP_SECRET}&grant_type=fb_exchange_token&fb_exchange_token=${shortLivedToken}`
+            );
+            const longTokenData = await longTokenResponse.json();
 
-          if (longLivedToken) {
-            // Store the long-lived access token in localStorage
-            localStorage.setItem("fb_access_token", longLivedToken);
+            const longLivedToken = longTokenData.access_token;
 
-            // Proceed with fetching the Facebook pages and Instagram accounts
-            fetchAccountsFromAPI(longLivedToken);
+            if (longLivedToken) {
+              // Store the long-lived access token in localStorage
+              localStorage.setItem("fb_access_token", longLivedToken);
 
-            // Clear the code from the query params
-            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl); // Remove the code from the URL
+              // Proceed with fetching the Facebook pages and Instagram accounts
+              fetchAccountsFromAPI(longLivedToken);
+
+              // Clear the code from the query params
+              const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+              window.history.replaceState({}, document.title, newUrl); // Remove the code from the URL
+            }
           }
         }
       }
@@ -168,10 +182,10 @@ const Index = () => {
   };
 
   const handleLinkedinRedirect = () => {
-    const clientId = '77ufne14jzxbbc';
-    const redirectUri = encodeURIComponent('http://localhost:5173/social-pages');
-    const state = 'WPL_AP1.Q1h1nSOAtOfOgsNL.9zPzwA=='; // Should be random & stored for verification
-    const scope = 'openid profile email w_member_social';
+    const clientId = LINKEDIN_CRED.clientId;
+    const redirectUri = encodeURIComponent(LINKEDIN_CRED.redirectUri);
+    const state = LINKEDIN_CRED.state; // Should be random & stored for verification
+    const scope = LINKEDIN_CRED.scope;
 
     const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${encodeURIComponent(scope)}`;
     window.location.href = authUrl;
