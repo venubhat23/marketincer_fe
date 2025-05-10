@@ -194,10 +194,11 @@ const CreatePost = () => {
   // };
 
   const handleAvatarClick = (pageId) => {
-    setSelectedPages((prevSelected) =>
-      prevSelected.includes(pageId)
-        ? prevSelected.filter((id) => id !== pageId) // Deselect if already selected
-        : [...prevSelected, pageId] // Select if not selected
+    console.log("Page ID clicked:", pageId, selectedPages);
+    setSelectedPages((selectedPages) =>
+    selectedPages.includes(pageId)
+        ? selectedPages.filter((id) => id !== pageId) // Deselect if already selected
+        : [...selectedPages, pageId] // Select if not selected
     );
   };
   const draftModelOpen= async (action) => {
@@ -259,7 +260,7 @@ const CreatePost = () => {
     setPosting(true);
     const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
     const payloadData = {
-      social_page_id: selectedPages[0],  // Only sending the first selected page for now
+      social_page_id: selectedPages,  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
         note: stripHtmlTags(postContent),        // ✅ Apply to postContent
