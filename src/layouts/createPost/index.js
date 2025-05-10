@@ -4,6 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import SellIcon from '@mui/icons-material/Sell';
 import {
   Avatar,
@@ -219,7 +220,7 @@ const CreatePost = () => {
     setPosting(true);
     const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
     const payloadData = {
-      social_page_id: selectedPages,  // Only sending the first selected page for now
+      social_page_ids: selectedPages,  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
         note: stripHtmlTags(postContent),        // ✅ Apply to postContent
@@ -260,7 +261,7 @@ const CreatePost = () => {
     setPosting(true);
     const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
     const payloadData = {
-      social_page_id: selectedPages,  // Only sending the first selected page for now
+      social_page_ids: selectedPages,  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
         note: stripHtmlTags(postContent),        // ✅ Apply to postContent
@@ -568,12 +569,17 @@ const CreatePost = () => {
         {/* Social Media Icons */}
         <Box display="flex" alignItems="top" gap={1} mb={2}>
           <Box sx={{ width: "35px" }}>
-            {selectedPages.length > 0 && (
-
-              <Avatar sx={{ bgcolor: "#E1306C", width: 32, height: 32, marginTop: "5px" }}>
-                <InstagramIcon sx={{ color: "white" }} />
-              </Avatar>
-            )}
+            {selectedPages.length > 0 && selectedPages.map((selectedPage) => {
+              return (
+                <>
+                  {(pages.page_id == selectedPage && pages.page_type == "instagram") ? (
+                    <Avatar sx={{ bgcolor: "#E1306C", width: 32, height: 32, marginTop: "5px" }}>
+                      <InstagramIcon sx={{ color: "white" }} /> 
+                    </Avatar>
+                  ) : null}
+                </>
+              );
+            })}
 
             {/* <Avatar sx={{ bgcolor: "#1877F2", width: 32, height: 32, marginTop: "5px" }}>
               <FacebookIcon sx={{ color: "white" }} />
