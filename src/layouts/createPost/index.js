@@ -572,11 +572,22 @@ const CreatePost = () => {
             {selectedPages.length > 0 && selectedPages.map((selectedPage) => {
               return (
                 <>
-                  {(pages.page_id == selectedPage && pages.page_type == "instagram") ? (
-                    <Avatar sx={{ bgcolor: "#E1306C", width: 32, height: 32, marginTop: "5px" }}>
-                      <InstagramIcon sx={{ color: "white" }} /> 
-                    </Avatar>
-                  ) : null}
+                  {pages.map((page) => {
+                    if (page.page_id == selectedPage && page.page_type == "instagram") {
+                      return (
+                        <Avatar sx={{ bgcolor: "#E1306C", width: 32, height: 32, marginTop: "5px" }}>
+                          <InstagramIcon sx={{ color: "white" }} /> 
+                        </Avatar>
+                      );
+                    }
+                    if (page.page_id == selectedPage && page.page_type == "linkedin") {
+                      return (
+                        <Avatar sx={{ bgcolor: "#0077B5", width: 32, height: 32, marginTop: "5px" }}>
+                          <LinkedInIcon sx={{ color: "white" }} /> 
+                        </Avatar>
+                      );
+                    }
+                  })}
                 </>
               );
             })}
