@@ -32,7 +32,7 @@ const REDIRECT_URI = "https://www.marketincer.com/social";
 const LINKEDIN_CRED = {
   clientId: "77ufne14jzxbbc",
   clientSecret: "k0a1Jt5K0iZx7l7Y",
-  redirectUri: "http://localhost:5173/social",
+  redirectUri: "https://www.marketincer.com/social",
   scope: "openid profile email w_member_social",
   state: "marketincer-linkedin", // Should be random & stored for verification
 }
