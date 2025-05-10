@@ -218,7 +218,7 @@ const CreatePost = () => {
     setPosting(true);
     const stripHtmlTags = (postContent) => postContent.replace(/<[^>]*>/g, '').trim();
     const payloadData = {
-      social_page_id: selectedPages[0],  // Only sending the first selected page for now
+      social_page_id: selectedPages,  // Only sending the first selected page for now
       post: {
         s3_url: uploadedImageUrl,
         note: stripHtmlTags(postContent),        // ✅ Apply to postContent
