@@ -1,10 +1,11 @@
 import AxiosManager from '../../axiosManager';
 
-async function fetchLinkedInProfile(code, redirectUri) {
+async function fetchLinkedInProfile(code, redirectUri, type) {
   try {
     const paylod = {
         code: code,
         redirect_uri: redirectUri,
+        type: type,
     };
     console.log('Payload:', paylod);
     const response = await AxiosManager.post('/api/v1/linkedin/exchange-token', paylod);

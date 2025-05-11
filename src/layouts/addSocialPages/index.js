@@ -11,6 +11,7 @@ import PinterestIcon from '@mui/icons-material/Pinterest';
 import { Twitter } from "@mui/icons-material";
 import MDButton from "@/components/MDButton";
 import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import onBoardImage from "@/assets/images/on-board-social-accounts.jpeg";
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -45,17 +46,17 @@ const Index = () => {
   const [pages, setPages] = useState([]);
   const [instagramAccounts, setInstagramAccounts] = useState([]);
   const [linkedinAccounts, setLinkedinAccounts] = useState({});
+  const [linkedinType, setLinkedinType] = useState("");
   const [gettingPage, setGettingPage] = useState(false);
     const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = () => setSuccessSB(true);
   const closeSuccessSB = () => setSuccessSB(false);
+  const urlParams = new URLSearchParams(window.location.search);
+  const authCode = urlParams.get("code");
+  const authState = urlParams.get("state");
 
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const authCode = urlParams.get("code");
-    const authState = urlParams.get("state");
-
     if (authCode) {
       fetchAccessToken(authCode, authState);
     }
@@ -68,7 +69,7 @@ const Index = () => {
       if (code) {
         if(authState == LINKEDIN_CRED.state) {
           console.log("LinkedIn auth code:", code);
-          let response = await fetchLinkedInProfile(code, LINKEDIN_CRED.redirectUri);
+          let response = await fetchLinkedInProfile(code, LINKEDIN_CRED.redirectUri, linkedinType);
           setLinkedinOpenModal(true);
           console.log("LinkedIn response:", response);
           setLinkedinAccounts(response.user_profile)
@@ -206,7 +207,7 @@ const Index = () => {
     { name: "YouTube", icon: <YouTubeIcon fontSize="large" />, color: "red", onClick: () => { } },
     { name: "Google", icon: <GoogleIcon fontSize="large" />, color: "#4285F4", onClick: () => { } },
     { name: "Telegram", icon: <TelegramIcon fontSize="large" />, color: "#0088cc", onClick: () => { } },
-    { name: "Linkedin", icon: <LinkedInIcon fontSize="large" />, color: "#0088cc", onClick: () => handleLinkedinRedirect() }
+    { name: "Linkedin", icon: <LinkedInIcon fontSize="large" />, color: "#0088cc", onClick: () => setLinkedinOpenModal(true) }
   ];
 
 
@@ -497,7 +498,7 @@ const Index = () => {
         </Box>
       </Modal>
 
-      {/* Modal for Showing Pages & Instagram Accounts */}
+      {/* Modal for Showing Pages & Linkedin Accounts */}
       <Modal open={linkedinOpenModal} onClose={() => setLinkedinOpenModal(false)}>
         <Box
           sx={{
@@ -550,19 +551,62 @@ const Index = () => {
             <CircularProgress sx={{ 'margin': '50px auto' }}/>
           ) : (
             <>
-
-              <Box sx={{ margin: 0, width: "100%", }} >
-                <Typography sx={{
-                  fontSize: "14px",
-                  color: "#373737",
-                  padding: "20px",
-                  border: "1px solid #ddd",
-                  margin: "20px 0",
-                }}>
-                  {linkedinAccounts["name"]}
-                  <span style={{ "color": "green", "fontWeight": 700, "float": "right" }}>Connected</span>
-                </Typography>           
-              </Box>
+              {linkedinType && authCode && authState == LINKEDIN_CRED.state ? (
+                  <Box sx={{ margin: 0, width: "100%", }} >
+                    <Typography sx={{
+                      fontSize: "14px",
+                      color: "#373737",
+                      padding: "20px",
+                      border: "1px solid #ddd",
+                      margin: "20px 0",
+                    }}>
+                      {linkedinAccounts["name"]}
+                      <span style={{ "color": "green", "fontWeight": 700, "float": "right" }}>Connected</span>
+                    </Typography>           
+                  </Box>
+                ) : (
+                  <Box sx={{ margin: 0, width: "100%", display: "flex", gap: 2 }}>
+                    {["profile", "pages"].map((type) => (
+                      <Box
+                        key={type}
+                        sx={{
+                          flex: 1,
+                          padding: "12px 24px",
+                          border: linkedinType === type ? "1px solid #1976d2" : "1px solid",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          transition: "0.3s",
+                          backgroundColor: linkedinType === type ? "#e3f2fd" : "white",
+                          margin: "20px 0",
+                          "&:hover": {
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                            borderColor: "#1976d2",
+                            backgroundColor: "#f5faff",
+                          },
+                        }}
+                        onClick={() => {
+                          setLinkedinType(type);
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: "14px",
+                            color: "#373737",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                          {linkedinType == type && (
+                            <CheckCircleIcon sx={{ fontSize: 20, color: "#1976d2" }} />
+                          )}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                )
+              }
               <Box
                 sx={{
                   display: "flex",
@@ -585,7 +629,11 @@ const Index = () => {
                     },
                   }}
                   onClick={() => {
-                    window.location.href = "/social-pages";
+                    if(linkedinType && authCode && authState == LINKEDIN_CRED.state) {
+                      window.location.href = "/social-pages";
+                    } else {
+                      handleLinkedinRedirect();
+                    }
                   }}
                 >
                   Continue
